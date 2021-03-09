@@ -80,10 +80,10 @@ public class ValidadorNSS {
     private static String digitosControl(String nss) {
 
         // pasamos los diez primeros dígitos del nss a entero
-        int miNss = Integer.parseInt(nss.substring(0,10));
+        long miNss = Long.parseLong(nss.substring(0,10));
 
         // Almacenamos el resto de la ecuación
-        int resto = miNss % 97;
+        long resto = miNss % 97;
 
         // Devolvemos el resto transformado en String
         return String.valueOf(resto);
