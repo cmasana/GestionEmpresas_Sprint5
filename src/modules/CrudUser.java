@@ -1,15 +1,17 @@
 package modules;
 
-import auxiliar.CustomException;
-import auxiliar.InputOutput;
-import auxiliar.Log;
+import auxiliar.*;
+import auxiliar.Error;
 import custom_ui.tables.*;
 import mainclasses.database.EmployeeDB;
-import auxiliar.Error;
 import mainclasses.user.Employee;
 import validations.*;
 
 import javax.swing.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Clase CrudUser: Implementa todos los métodos para la gestión de empleados
@@ -17,6 +19,7 @@ import javax.swing.*;
 public class CrudUser {
     // Simula bbdd
     private final EmployeeDB employeeList = new EmployeeDB();
+
 
     /**
      * Permite crear un usuario y visualizarlo en tiempo real en su correspondiente tabla
@@ -30,6 +33,9 @@ public class CrudUser {
     public void createUser(JTable userTable, String name, String dni, String nss, String employeeId) {
 
         try {
+            PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(
+                    "INSERT INTO USER (username, dni, nss, employeeid, creationdate, status) VALUES (?,?,?,?,?,?)"
+            );
             // Si hay algún campo vacío
             if (name.isEmpty() || dni.isEmpty() || nss.isEmpty() || employeeId.isEmpty()) {
                 throw new CustomException(1111);
@@ -45,6 +51,16 @@ public class CrudUser {
                     // Creamos objeto de la clase empleado
                     Employee emp = new Employee(name, dni, nss, employeeId);
 
+                    stmt.setString(1, name);
+                    stmt.setString(2, dni);
+                    stmt.setString(3, nss);
+                    stmt.setString(4, employeeId);
+                    stmt.setString(5, InputOutput.todayDate());
+                    stmt.setString(6, "active");
+
+                    stmt.executeUpdate();
+                    stmt.close();
+
                     // Lo añadimos al arraylist de tipo Empleado
                     employeeList.addEmployee(emp);
 
@@ -55,7 +71,7 @@ public class CrudUser {
                     showData(userTable);
                 }
             }
-        } catch (CustomException ce) {
+        } catch (CustomException | SQLException ce) {
             InputOutput.printAlert(ce.getMessage());
 
             // Capturamos error para el registro
