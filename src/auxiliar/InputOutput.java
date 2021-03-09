@@ -79,6 +79,17 @@ public class InputOutput {
     }
 
     /**
+     * Muestra la fecha actual en formato String
+     * @return devuelve un String con la fecha actual
+     */
+    public static String todayDate() {
+        Date today = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        return sdf.format(today);
+    }
+
+    /**
      * Muestra un mensaje de confirmación cuando queremos eliminar un elemento
      * @return devuelve un entero, OK = 0
      */
