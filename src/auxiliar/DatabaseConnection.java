@@ -8,7 +8,7 @@ import java.sql.*;
  */
 public class DatabaseConnection {
     private static Connection conn = null;
-    private static final String url = "jdbc:mariadb://localhost:3306/proiectus";
+    private static final String url = "jdbc:mariadb://localhost/proiectus";
     private static final String driver = "org.mariadb.jdbc.Driver";
     private static final String username = "root";
     private static final String password = "cmasana";

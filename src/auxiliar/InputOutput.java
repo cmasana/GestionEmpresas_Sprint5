@@ -104,4 +104,6 @@ public class InputOutput {
     public static int emptyConfirmation() {
         return JOptionPane.showConfirmDialog(null, "Estás seguro?", "Se eliminarán todos los elementos", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
     }
+
+
 }

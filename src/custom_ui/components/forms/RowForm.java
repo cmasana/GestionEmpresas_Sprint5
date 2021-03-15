@@ -18,10 +18,10 @@ public class RowForm extends JPanel {
     // Componentes
     private JTextField txtInput;
 
-    public RowForm(String labelTitle) throws IOException {
+    public RowForm(String labelTitle, boolean status) throws IOException {
         this.initComponent();
         this.setLabelTitle(labelTitle);
-        this.setInputField();
+        this.setInputField(status);
     }
 
     /**
@@ -29,7 +29,7 @@ public class RowForm extends JPanel {
      */
     private void initComponent() throws IOException {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBorder(new EmptyBorder(25, 75, 20, 300));
+        this.setBorder(new EmptyBorder(15, 75, 15, 300));
         this.setBackground(DYE.getSECONDARY());
     }
 
@@ -48,9 +48,11 @@ public class RowForm extends JPanel {
     /**
      * Añade un input para que el usuario introduzca datos
      */
-    private void setInputField() throws IOException {
+    private void setInputField(boolean status) throws IOException {
         txtInput = new JTextField(10);
         txtInput.setAlignmentX(Component.LEFT_ALIGNMENT);
+        txtInput.setEnabled(status);
+        txtInput.setEditable(status);
         txtInput.setOpaque(false);
         txtInput.setBorder(new MatteBorder(0, 0, 1, 0, DYE.getTXTMAIN()));
         this.add(txtInput);
@@ -66,4 +68,5 @@ public class RowForm extends JPanel {
     public void setTxtInput(String txtInput) {
         this.txtInput.setText(txtInput);
     }
+
 }
