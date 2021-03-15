@@ -6,6 +6,7 @@ package mainclasses.user;
  * Clase User
  */
 public abstract class User {
+    protected int idUser;
     protected String name;
     protected String dni;
     protected String nss;
@@ -14,27 +15,34 @@ public abstract class User {
      * Constructor vacío de la clase User
      */
     public User() {
-        this.name = "";
-        this.dni = "";
-        this.nss = "";
+
     }
 
     /**
      * Constructor sobrecargado de la clase User
-     *
+     * @param idUser ID del usuario
      * @param name nombre del Usuario
      * @param dni documento nacional de identificación del Usuario
      * @param nss número de la seguridad social del Usuario
      */
-    public User(String name, String dni, String nss) {
+    public User(int idUser, String name, String dni, String nss) {
+        this.idUser = idUser;
         this.name = name;
         this.dni = dni;
         this.nss = nss;
     }
 
+
     /**
      * Getters & Setters
      */
+    public int getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(int idUser) {
+        this.idUser = idUser;
+    }
 
     public String getName() {
         return name;
