@@ -1,6 +1,11 @@
 package mainclasses.database;
 
+import auxiliar.DatabaseConnection;
 import mainclasses.user.Employee;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 /**
@@ -59,6 +64,24 @@ public class EmployeeDB {
         return LISTA_EMPLEADOS.toArray(new Employee[sizeEmployeeDB()]);
     }
 
+
+/*    *//**
+     * Obtiene los registros introducidos en la tabla USERS de la bbdd
+     * @return devuelve un ArrayList con los registros de la tabla de USERS
+     *//*
+    public ResultSet getAllEmployees() {
+        String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS WHERE status = 'active'";
+        ResultSet rs = null;
+
+        try (Statement stmt = DatabaseConnection.getConnection().createStatement()) {
+            rs = stmt.executeQuery(sql);
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return rs;
+    }*/
 }
 
 
