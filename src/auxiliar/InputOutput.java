@@ -105,5 +105,14 @@ public class InputOutput {
         return JOptionPane.showConfirmDialog(null, "Estás seguro?", "Se eliminarán todos los elementos", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
     }
 
+    /**
+     * Transforma un String a entero
+     * @param elemento String que queremos cambiar
+     * @return devuelve un entero
+     */
+    public static int stringToInt(String elemento) {
+        return Integer.parseInt(elemento);
+    }
+
 
 }

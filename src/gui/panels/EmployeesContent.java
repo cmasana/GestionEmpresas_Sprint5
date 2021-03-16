@@ -1,5 +1,6 @@
 package gui.panels;
 
+import auxiliar.InputOutput;
 import custom_ui.components.buttons.ImageButton;
 import custom_ui.components.forms.*;
 import custom_ui.tables.CustomTableConfig;
@@ -132,7 +133,13 @@ public class EmployeesContent extends ContentWindow {
         btnEdit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudUser.editUser(userTable, rowName.getTxtInput().getText(), rowDni.getTxtInput().getText(), rowNss.getTxtInput().getText(), rowEmployeeId.getTxtInput().getText());
+                crudUser.editUser(userTable,
+                        InputOutput.stringToInt(rowId.getTxtInput().getText()),
+                        rowName.getTxtInput().getText(),
+                        rowDni.getTxtInput().getText(),
+                        rowNss.getTxtInput().getText(),
+                        rowEmployeeId.getTxtInput().getText()
+                );
             }
         });
         mButtonsEmployee.add(btnEdit);
@@ -147,7 +154,13 @@ public class EmployeesContent extends ContentWindow {
         btnDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudUser.deleteUser(userTable);
+                crudUser.softDeleteUser(userTable,
+                        InputOutput.stringToInt(rowId.getTxtInput().getText()),
+                        rowName.getTxtInput().getText(),
+                        rowDni.getTxtInput().getText(),
+                        rowNss.getTxtInput().getText(),
+                        rowEmployeeId.getTxtInput().getText()
+                );
             }
         });
         mButtonsEmployee.add(btnDelete);
@@ -214,6 +227,7 @@ public class EmployeesContent extends ContentWindow {
      * Método que permite limpiar el texto de los inputs (textfields)
      */
     private void cleanInputs() {
+        rowId.setTxtInput("");
         rowName.setTxtInput("");
         rowDni.setTxtInput("");
         rowNss.setTxtInput("");

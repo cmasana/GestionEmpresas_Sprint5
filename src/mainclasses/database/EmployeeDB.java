@@ -4,7 +4,6 @@ import auxiliar.DatabaseConnection;
 import mainclasses.user.Employee;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
@@ -66,23 +65,10 @@ public class EmployeeDB {
 
 
     /**
-     * Obtiene los registros introducidos en la tabla USERS de la bbdd
-     * @return devuelve un ArrayList con los registros de la tabla de USERS
+     * Permite transformar un arraylist en un array 2d de Strings
+     * (es necesario para cargar los datos del arraylist en el JTable)
+     * @return devuelve un array de Strings
      */
-    public ResultSet getAllEmployees() {
-        String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS WHERE status = 'active'";
-        ResultSet rs = null;
-
-        try (Statement stmt = DatabaseConnection.getConnection().createStatement()) {
-            rs = stmt.executeQuery(sql);
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
-        return rs;
-    }
-
     public String[][] listEmployeesObject() {
         String[][] array = new String[sizeEmployeeDB()][5];
 
@@ -97,10 +83,14 @@ public class EmployeeDB {
         return array;
     }
 
+    /**
+     * Permite cargar un ResultSet con los datos de la bbdd en el arraylist de esta clase
+     */
     private void getUsersTable() {
-        String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS";
-        try {
-            Statement stmt = DatabaseConnection.getConnection().createStatement();
+        String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS WHERE status = 'active'";
+
+        // Try-with-resources Statement: Se realiza el close() automaticamente
+        try(Statement stmt = DatabaseConnection.getConnection().createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
@@ -111,7 +101,7 @@ public class EmployeeDB {
                 employee.setNss(rs.getString("nss"));
                 employee.setEmployeeId(rs.getString("employeeid"));
 
-                LISTA_EMPLEADOS.add(employee);
+                this.addEmployee(employee);
             }
         } catch (Exception e) {
             e.printStackTrace();
