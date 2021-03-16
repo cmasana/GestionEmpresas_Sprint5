@@ -9,7 +9,9 @@ import validations.*;
 
 import javax.swing.*;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -49,7 +51,7 @@ public class CrudUser {
 
                 } else {
                     // Creamos objeto de la clase empleado
-                    Employee emp = new Employee(name, dni, nss, employeeId);
+                    Employee emp = new Employee(0, name, dni, nss, employeeId); // ID USER AUTo
 
                     stmt.setString(1, name);
                     stmt.setString(2, dni);
@@ -112,43 +114,6 @@ public class CrudUser {
             // En caso contrario, mostramos un error por pantalla
             else {
                 throw new CustomException(1114);
-            }
-        } catch (CustomException ce) {
-            InputOutput.printAlert(ce.getMessage());
-
-            // Capturamos error para el registro
-            Error.capturarError("EMPLOYEE " + ce.getMessage());
-        }
-    }
-
-    /**
-     * Permite eliminar todos los empleados
-     *
-     * @param userTable tabla dónde se visualizan todos los empleados
-     */
-    public void emptyAll(JTable userTable) {
-        // Almacena un entero, si es 0 se eliminan todos los elementos
-        int ok;
-
-        // Almacenamos el nº total de filas que hay en la tabla
-        int totalrows = userTable.getRowCount();
-
-        try {
-            if (totalrows != 0) {
-                // Mensaje de confirmación para eliminar
-                ok = InputOutput.emptyConfirmation();
-
-                if (ok == 0) {
-                    // Recorremos el arrayList y eliminamos 1 a 1 los registros
-                    for (int i = (totalrows - 1); i >= 0; i--) {
-                        employeeList.removeEmployee(i);
-                    }
-
-                    // Actualizamos los datos de la tabla
-                    showData(userTable);
-                }
-            } else {
-                throw new CustomException(1115);
             }
         } catch (CustomException ce) {
             InputOutput.printAlert(ce.getMessage());

@@ -90,13 +90,13 @@ public class ProposalContent extends ContentWindow {
         form.setLayout(new GridLayout(4,1));
         form.setBorder(new EmptyBorder(20,50,20,100)); // Top, left, bottom, right
 
-        rowTitle = new RowForm("Título");
+        rowTitle = new RowForm("Título", true);
         form.add(rowTitle);
 
-        rowDescription = new RowForm("Descripción");
+        rowDescription = new RowForm("Descripción", true);
         form.add(rowDescription);
 
-        rowStartDate = new RowForm("Fecha de inicio (dd/mm/yyyy)");
+        rowStartDate = new RowForm("Fecha de inicio (dd/mm/yyyy)", true);
         form.add(rowStartDate);
 
         form.add(putCombobox());

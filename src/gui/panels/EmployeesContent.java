@@ -3,6 +3,8 @@ package gui.panels;
 import custom_ui.components.buttons.ImageButton;
 import custom_ui.components.forms.*;
 import custom_ui.tables.CustomTableConfig;
+import custom_ui.tables.CustomTableModel;
+import mainclasses.database.EmployeeDB;
 import modules.CrudUser;
 
 import javax.swing.*;
@@ -24,6 +26,7 @@ public class EmployeesContent extends ContentWindow {
     private JPanel management;
 
     // Formulario
+    private RowForm rowId;
     private RowForm rowName;
     private RowForm rowDni;
     private RowForm rowNss;
@@ -74,19 +77,22 @@ public class EmployeesContent extends ContentWindow {
     private void putForm() throws IOException {
         JPanel form = new JPanel();
         form.setBackground(DYE.getSECONDARY());
-        form.setLayout(new GridLayout(4, 1));
+        form.setLayout(new GridLayout(5, 1));
         form.setBorder(new EmptyBorder(20,50,20,100)); // Top, left, bottom, right
 
-        rowName = new RowForm("Nombre");
+        rowId = new RowForm("ID", false);
+        form.add(rowId);
+
+        rowName = new RowForm("Nombre", true);
         form.add(rowName);
 
-        rowDni = new RowForm("DNI (8 dígitos y 1 letra)");
+        rowDni = new RowForm("DNI (8 dígitos y 1 letra)", true);
         form.add(rowDni);
 
-        rowNss = new RowForm("NSS (12 dígitos)");
+        rowNss = new RowForm("NSS (12 dígitos)", true);
         form.add(rowNss);
 
-        rowEmployeeId = new RowForm("Cod. Empleado");
+        rowEmployeeId = new RowForm("Cod. Empleado", true);
         form.add(rowEmployeeId);
 
         management.add(form, BorderLayout.CENTER);
@@ -146,26 +152,6 @@ public class EmployeesContent extends ContentWindow {
         });
         mButtonsEmployee.add(btnDelete);
 
-        /*
-        // DESACTIVADO A PETICIÓN DEL PROFESOR
-
-        // Crea un espacio en blanco de separación
-        mButtonsEmployee.add(Box.createRigidArea(new Dimension(0, 5)));
-
-        // Botón vaciar lista
-        ImageButton btnEmpty = new ImageButton("img/empty.png", "VACIAR");
-        btnEmpty.setPreferredSize(new Dimension(150, 40));
-        btnEmpty.setMaximumSize(new Dimension(150, 40));
-        btnEmpty.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                crudUser.emptyAll(userTable);
-            }
-        });
-        mButtonsEmployee.add(btnEmpty);
-
-        */
-
         mButtonsEmployee.setVisible(true);
 
         management.add(mButtonsEmployee, BorderLayout.WEST);
@@ -184,13 +170,14 @@ public class EmployeesContent extends ContentWindow {
 
         userTable = new JTable();
 
-        // Modelo por defecto de la tabla
-        userTable.setModel(new javax.swing.table.DefaultTableModel(
-                new Object [][] {
+        // Datos del ArrayList que almacena el ResultSet de la bbdd
+        EmployeeDB EMPDB = new EmployeeDB();
 
-                },
+        // Modelo por defecto de la tabla
+        userTable.setModel(new CustomTableModel(
+                EMPDB.listEmployeesObject(),
                 new String [] {
-                        "Nombre", "DNI", "NSS", "Cod. Empleado"
+                        "ID","Nombre", "DNI", "NSS", "Cod. Empleado"
                 }
         ));
 
@@ -211,10 +198,11 @@ public class EmployeesContent extends ContentWindow {
                     cleanInputs();
                 }
                 else {
-                    rowName.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 0).toString());
-                    rowDni.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 1).toString());
-                    rowNss.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 2).toString());
-                    rowEmployeeId.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 3).toString());
+                    rowId.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 0).toString());
+                    rowName.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 1).toString());
+                    rowDni.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 2).toString());
+                    rowNss.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 3).toString());
+                    rowEmployeeId.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 4).toString());
                 }
             }
         });

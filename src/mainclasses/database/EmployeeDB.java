@@ -14,11 +14,11 @@ import java.util.ArrayList;
  */
 public class EmployeeDB {
     // ArrayList que simula la base de datos de Empleados
-    private static final ArrayList<Employee> LISTA_EMPLEADOS = new ArrayList<Employee>();
+    private final ArrayList<Employee> LISTA_EMPLEADOS = new ArrayList<Employee>();
 
     // Constructor vacío
     public EmployeeDB() {
-
+        this.getUsersTable();
     }
 
     // Métodos para realizar operaciones básicas en nuestro ArrayList
@@ -65,10 +65,10 @@ public class EmployeeDB {
     }
 
 
-/*    *//**
+    /**
      * Obtiene los registros introducidos en la tabla USERS de la bbdd
      * @return devuelve un ArrayList con los registros de la tabla de USERS
-     *//*
+     */
     public ResultSet getAllEmployees() {
         String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS WHERE status = 'active'";
         ResultSet rs = null;
@@ -81,7 +81,42 @@ public class EmployeeDB {
         }
 
         return rs;
-    }*/
+    }
+
+    public String[][] listEmployeesObject() {
+        String[][] array = new String[sizeEmployeeDB()][5];
+
+        for (int i = 0; i < sizeEmployeeDB(); i ++) {
+            array[i][0] = String.valueOf(getEmployeeFromDB(i).getIdUser());
+            array[i][1] = getEmployeeFromDB(i).getName();
+            array[i][2] = getEmployeeFromDB(i).getDni();
+            array[i][3] = getEmployeeFromDB(i).getNss();
+            array[i][4] = getEmployeeFromDB(i).getEmployeeId();
+        }
+
+        return array;
+    }
+
+    private void getUsersTable() {
+        String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS";
+        try {
+            Statement stmt = DatabaseConnection.getConnection().createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                Employee employee = new Employee();
+                employee.setIdUser(rs.getInt("iduser"));
+                employee.setName(rs.getString("username"));
+                employee.setDni(rs.getString("dni"));
+                employee.setNss(rs.getString("nss"));
+                employee.setEmployeeId(rs.getString("employeeid"));
+
+                LISTA_EMPLEADOS.add(employee);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 
