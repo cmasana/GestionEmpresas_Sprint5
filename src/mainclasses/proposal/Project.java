@@ -8,17 +8,27 @@ import mainclasses.user.Employee;
  * Clase Project: Define atributos y métodos de la clase
  */
 public class Project {
-    
+
+    private int idProject;
     private String name;
     private Employee manager;
     private String description;
 
-    public Project(String name, String description, Employee manager) {
+    public Project(int idProject, String name, String description, Employee manager) {
+        this.idProject = idProject;
         this.name = name;
         this.description = description;
         this.manager = manager;
     }
-    
+
+    public int getIdProject() {
+        return idProject;
+    }
+
+    public void setIdProject(int idProject) {
+        this.idProject = idProject;
+    }
+
     public String getName() {
         return name;
     }

@@ -1,5 +1,7 @@
 package mainclasses.entity;
 
+import java.io.Serializable;
+
 /**
  * Grupo Individual Sprint 3 2020-2021
  * @author Carlos Masana
@@ -24,10 +26,11 @@ public class School extends Entity {
      * @param telefono        número de teléfono del instituto
      * @param codTerritorial  código de 6 dígitos único de cada instituto
      */
-    public School(String nombre, String poblacion, int telefono, String codTerritorial) {
-        super(nombre, poblacion, telefono);
+    public School(int idEntity, String nombre, String poblacion, int telefono, String codTerritorial) {
+        super(idEntity, nombre, poblacion, telefono);
         this.codTerritorial = codTerritorial;
     }
+
 
     /**
      * Getters & Setters

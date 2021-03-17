@@ -184,11 +184,11 @@ public class EmployeesContent extends ContentWindow {
         userTable = new JTable();
 
         // Datos del ArrayList que almacena el ResultSet de la bbdd
-        EmployeeDB EMPDB = new EmployeeDB();
+        EmployeeDB empdb = new EmployeeDB();
 
         // Modelo por defecto de la tabla
         userTable.setModel(new CustomTableModel(
-                EMPDB.listEmployeesObject(),
+                empdb.listEmployeesObject(),
                 new String [] {
                         "ID","Nombre", "DNI", "NSS", "Cod. Empleado"
                 }

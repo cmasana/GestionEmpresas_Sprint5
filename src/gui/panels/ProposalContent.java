@@ -6,6 +6,7 @@ import auxiliar.InputOutput;
 import custom_ui.components.buttons.ImageButton;
 import custom_ui.components.forms.*;
 import custom_ui.tables.*;
+import io.loli.datepicker.DatePicker;
 import mainclasses.database.EntityDB;
 import mainclasses.database.ProposalDB;
 import mainclasses.entity.Entity;
@@ -16,6 +17,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,6 +30,7 @@ public class ProposalContent extends ContentWindow {
     private JPanel tablePanel;
 
     // Formulario
+    private RowForm rowId;
     private RowForm rowTitle;
     private RowForm rowDescription;
     private RowForm rowStartDate;
@@ -39,7 +42,6 @@ public class ProposalContent extends ContentWindow {
     private JTable proposalTable;
 
     // Simula las bbdd
-    private static final EntityDB entityDB = new EntityDB();
     private final ProposalDB proposalDB = new ProposalDB();
 
     // Cruds
@@ -87,8 +89,11 @@ public class ProposalContent extends ContentWindow {
     private void putForm() throws IOException {
         JPanel form = new JPanel();
         form.setBackground(DYE.getSECONDARY());
-        form.setLayout(new GridLayout(4,1));
-        form.setBorder(new EmptyBorder(20,50,20,100)); // Top, left, bottom, right
+        form.setLayout(new GridLayout(5,1));
+        form.setBorder(new EmptyBorder(15,50,15,100)); // Top, left, bottom, right
+
+        rowId = new RowForm("ID", false);
+        form.add(rowId);
 
         rowTitle = new RowForm("Título", true);
         form.add(rowTitle);
@@ -96,7 +101,10 @@ public class ProposalContent extends ContentWindow {
         rowDescription = new RowForm("Descripción", true);
         form.add(rowDescription);
 
-        rowStartDate = new RowForm("Fecha de inicio (dd/mm/yyyy)", true);
+        rowStartDate = new RowForm("Fecha de inicio", true);
+
+        // Datepicker: https://github.com/chocotan/datepicker4j
+        DatePicker.datePicker(rowStartDate.getTxtInput(), "yyyy-MM-dd");
         form.add(rowStartDate);
 
         form.add(putCombobox());
@@ -120,7 +128,9 @@ public class ProposalContent extends ContentWindow {
         lbEntity.setAlignmentX(Component.LEFT_ALIGNMENT);
         comboPanel.add(lbEntity);
 
-        cbEntity = new JComboBox<>(entityDB.getLISTA().toArray(new Entity[0]));
+        EntityDB lista = new EntityDB();
+
+        cbEntity = new JComboBox<Entity>(lista.listEntities());
         cbEntity.setAlignmentX(Component.LEFT_ALIGNMENT);
         comboPanel.add(cbEntity);
 
@@ -144,7 +154,14 @@ public class ProposalContent extends ContentWindow {
         btnCreate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudProposal.createProposal(proposalTable, rowTitle.getTxtInput().getText(), rowDescription.getTxtInput().getText(), rowStartDate.getTxtInput().getText(), (Entity) cbEntity.getSelectedItem());
+                // No he conseguido utilizar getSelectedItem en el Combobox, pero funciona igualmente, quizás si pudiera eliminar las entidades no funcionaría correctamente
+                crudProposal.createProposal(proposalTable,
+                        rowTitle.getTxtInput().getText(),
+                        rowDescription.getTxtInput().getText(),
+                        rowStartDate.getTxtInput().getText(),
+                        (cbEntity.getSelectedIndex() + 1)
+                );
+
                 cleanInputs();
             }
         });
@@ -160,7 +177,15 @@ public class ProposalContent extends ContentWindow {
         btnEdit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudProposal.editProposal(proposalTable, rowTitle.getTxtInput().getText(), rowDescription.getTxtInput().getText(), rowStartDate.getTxtInput().getText(), cbEntity);
+                crudProposal.editProposal(proposalTable,
+                        rowTitle.getTxtInput().getText(),
+                        rowDescription.getTxtInput().getText(),
+                        rowStartDate.getTxtInput().getText(),
+                        (cbEntity.getSelectedIndex() + 1),
+                        InputOutput.stringToInt(rowId.getTxtInput().getText())
+                );
+
+                cleanInputs();
             }
         });
         mButtonsProposal.add(btnEdit);
@@ -175,7 +200,15 @@ public class ProposalContent extends ContentWindow {
         btnDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudProposal.deleteProposal(proposalTable);
+                crudProposal.softDeleteProposal(proposalTable,
+                        rowTitle.getTxtInput().getText(),
+                        rowDescription.getTxtInput().getText(),
+                        rowStartDate.getTxtInput().getText(),
+                        (cbEntity.getSelectedIndex() + 1),
+                        InputOutput.stringToInt(rowId.getTxtInput().getText())
+                );
+
+                cleanInputs();
             }
         });
         mButtonsProposal.add(btnDelete);
@@ -236,7 +269,7 @@ public class ProposalContent extends ContentWindow {
      * Añade una tabla y su configuración al panel actual
      */
     private void putProposalTable() throws IOException {
-        String[] titulos = {"Título", "Descripción", "Fecha Inicio", "Entidad"};
+        String[] titulos = {"ID","Título", "Descripción", "Fecha Inicio", "Entidad"};
 
         JPanel proposalPanelTable = new JPanel(new BorderLayout());
         proposalPanelTable.setBackground(DYE.getSECONDARY());
@@ -247,11 +280,11 @@ public class ProposalContent extends ContentWindow {
 
         proposalTable = new JTable();
 
+        ProposalDB propdb = new ProposalDB();
+
         // Modelo por defecto de la tabla
         proposalTable.setModel(new CustomTableModel(
-                new Object [][] {
-
-                },
+                propdb.listProposalsObject(),
                 titulos
         ));
 
@@ -272,10 +305,11 @@ public class ProposalContent extends ContentWindow {
                     cleanInputs();
                 }
                 else {
-                    rowTitle.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 0).toString());
-                    rowDescription.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 1).toString());
-                    rowStartDate.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 2).toString());
-                    cbEntity.setSelectedItem(proposalTable.getValueAt(proposalTable.getSelectedRow(), 3));
+                    rowId.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 0).toString());
+                    rowTitle.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 1).toString());
+                    rowDescription.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 2).toString());
+                    rowStartDate.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 3).toString());
+                    cbEntity.setSelectedItem(proposalTable.getValueAt(proposalTable.getSelectedRow(), 4).toString());
                 }
             }
         });
@@ -288,6 +322,7 @@ public class ProposalContent extends ContentWindow {
      * Método que permite limpiar el texto de los inputs (textfields)
      */
     private void cleanInputs() {
+        rowId.setTxtInput("");
         rowTitle.setTxtInput("");
         rowDescription.setTxtInput("");
         rowStartDate.setTxtInput("");

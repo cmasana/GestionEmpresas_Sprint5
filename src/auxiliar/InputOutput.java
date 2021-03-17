@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public class InputOutput {
     // Fechas
-    private final static SimpleDateFormat SDF = new SimpleDateFormat("dd/MM/yyyy");
+    private final static SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * Muestra por pantalla un cuadro de alerta con el mensaje indicado
@@ -111,7 +111,14 @@ public class InputOutput {
      * @return devuelve un entero
      */
     public static int stringToInt(String elemento) {
-        return Integer.parseInt(elemento);
+        int resultado = -1;
+
+        try {
+            resultado = Integer.parseInt(elemento);
+        } catch (Exception e) {
+            System.out.println("Error: No hay nada que parsear");
+        }
+        return resultado;
     }
 
 

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="io.loli:datepicker4j:0.0.5" type="repository">
+    <properties maven-id="io.loli:datepicker4j:0.0.5" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/loli/datepicker4j/0.0.5/datepicker4j-0.0.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

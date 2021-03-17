@@ -7,17 +7,16 @@ package mainclasses.entity;
  */
 
  public abstract class Entity {
-    protected String nombre;
-    protected String poblacion;
-    protected int telefono;
+     protected int idEntity;
+     protected String nombre;
+     protected String poblacion;
+     protected int telefono;
 
     /**
      * Constructor vacío de la clase Entity
      */
     public Entity() {
-        this.nombre = "";
-        this.poblacion = "";
-        this.telefono = 0;
+
     }
 
     /**
@@ -26,7 +25,8 @@ package mainclasses.entity;
      * @param poblacion lugar dónde se encuentra ubicada la entidad
      * @param telefono número de teléfono de la entidad
      */
-    public Entity(String nombre, String poblacion, int telefono) {
+    public Entity(int idEntity, String nombre, String poblacion, int telefono) {
+        this.idEntity = idEntity;
         this.nombre = nombre;
         this.poblacion = poblacion;
         this.telefono = telefono;
@@ -35,6 +35,14 @@ package mainclasses.entity;
     /**
      * Getters and Setters
      */
+
+    public int getIdEntity() {
+        return idEntity;
+    }
+
+    public void setIdEntity(int idEntity) {
+        this.idEntity = idEntity;
+    }
 
     public String getNombre() {
         return nombre;
@@ -60,13 +68,16 @@ package mainclasses.entity;
         this.telefono = telefono;
     }
 
+
+
     /**
      * Permite mostrar la información completa de un objeto de la clase entidad
      * @return mensaje con la información del objeto
      */
     @Override
     public String toString() {
-        return  "Nombre: " + this.nombre + " | " +
+        return  "ID: " + this.idEntity + " | " +
+                "Nombre: " + this.nombre + " | " +
                 "Población: " + this.poblacion + " | ";
     }
 }

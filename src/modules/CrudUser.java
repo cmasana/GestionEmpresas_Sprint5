@@ -51,6 +51,7 @@ public class CrudUser {
                     stmt.setString(6, InputOutput.todayDate());
                     stmt.setString(7, "active");
 
+
                     stmt.executeUpdate();
                     //stmt.close();
 
@@ -111,26 +112,24 @@ public class CrudUser {
                                 throw new CustomException(1113);
 
                             } else {
-                                if (selectedRow >= 0) {
-                                    resultado = InputOutput.deleteConfirmation();
+                                resultado = InputOutput.deleteConfirmation();
 
-                                    // Si el resultado es igual a 0, eliminamos el empleado
-                                    if (resultado == 0) {
-                                        stmt.setString(1, "inactive");
-                                        stmt.setString(2, InputOutput.todayDate());
+                                // Si el resultado es igual a 0, eliminamos el empleado
+                                if (resultado == 0) {
+                                    stmt.setString(1, "inactive");
+                                    stmt.setString(2, InputOutput.todayDate());
 
-                                        stmt.setInt(3, idUser);
+                                    stmt.setInt(3, idUser);
 
-                                        stmt.executeUpdate();
-                                        stmt.close();
+                                    stmt.executeUpdate();
+                                    stmt.close();
 
-                                        // Añadimos la entrada al log
-                                        Log.capturarRegistro("EMPLOYEE DELETE " + name + " " + dni + " "
-                                                + nss + "  " + employeeId);
+                                    // Añadimos la entrada al log
+                                    Log.capturarRegistro("EMPLOYEE DELETE " + name + " " + dni + " "
+                                            + nss + "  " + employeeId);
 
-                                        // Actualizamos datos de la tabla
-                                        showData(userTable);
-                                    }
+                                    // Actualizamos datos de la tabla
+                                    showData(userTable);
                                 }
                             }
                         }

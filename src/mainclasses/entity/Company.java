@@ -24,8 +24,8 @@ public class Company extends Entity {
      * @param telefono número de teléfono de la empresa
      * @param cif código de identificación fiscal de la empresa
      */
-    public Company(String nombre, String poblacion, int telefono, String cif) {
-        super(nombre, poblacion, telefono);
+    public Company(int idEntity, String nombre, String poblacion, int telefono, String cif) {
+        super(idEntity, nombre, poblacion, telefono);
         this.cif = cif;
     }
 
