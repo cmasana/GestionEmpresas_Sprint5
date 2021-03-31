@@ -1,5 +1,7 @@
 package auxiliar;
 
+import custom_ui.components.forms.RowForm;
+
 import javax.swing.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,16 +26,12 @@ public class InputOutput {
 
     /**
      * Vacía los textfields indicados
-     * @param field1 primer textfield
-     * @param field2 segundo textfield
-     * @param field3 tercer textfield
-     * @param field4 cuarto textfield
+     * @param inputText numero variable de argumentos de tipo RowForm
      */
-    public static void cleanInputs(JTextField field1, JTextField field2, JTextField field3, JTextField field4) {
-        field1.setText("");
-        field2.setText("");
-        field3.setText("");
-        field4.setText("");
+    public static void cleanInputs(RowForm... inputText) {
+        for (int i = 0; i < inputText.length; i++) {
+            inputText[i].setTxtInput("");
+        }
     }
 
     /**
@@ -111,14 +109,40 @@ public class InputOutput {
      * @return devuelve un entero
      */
     public static int stringToInt(String elemento) {
-        int resultado = -1;
+        return Integer.parseInt(elemento);
+    }
 
-        try {
-            resultado = Integer.parseInt(elemento);
-        } catch (Exception e) {
-            System.out.println("Error: No hay nada que parsear");
+    // Comprobaciones JTables
+
+    /**
+     * Permite averiguar si hay alguna fila seleccionada en una JTable
+     * @param table JTable que almacena registros de la bbdd
+     * @return devuelve TRUE si hay una fila seleccionada o FALSE si no hay
+     */
+    public static boolean rowIsSelected(JTable table) {
+        boolean isSelected = true;
+        int selectedRow = table.getSelectedRow();
+
+        if (selectedRow < 0) {
+            isSelected = false;
         }
-        return resultado;
+        return isSelected;
+    }
+
+
+    /**
+     * Permite averiguar si existe algún registro en una JTable
+     * @param table JTable que almacena registros de la bbdd
+     * @return devuelve TRUE si existe al menos una fila o FALSE si no existe ninguna
+     */
+    public static boolean someRows(JTable table) {
+        boolean exists = true;
+        int totalRows = table.getRowCount();
+
+        if (totalRows == 0) {
+            exists = false;
+        }
+        return exists;
     }
 
 
