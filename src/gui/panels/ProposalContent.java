@@ -8,16 +8,14 @@ import custom_ui.components.forms.*;
 import custom_ui.tables.*;
 import io.loli.datepicker.DatePicker;
 import mainclasses.database.EntityDB;
+import mainclasses.database.ProjectDB;
 import mainclasses.database.ProposalDB;
 import mainclasses.entity.Entity;
-import modules.CrudProject;
-import modules.CrudProposal;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,11 +40,8 @@ public class ProposalContent extends ContentWindow {
     private JTable proposalTable;
 
     // Simula las bbdd
-    private final ProposalDB proposalDB = new ProposalDB();
-
-    // Cruds
-    private final CrudProposal crudProposal = new CrudProposal();
-    private final CrudProject crudProject = new CrudProject();
+    private final ProposalDB PROPOSALDB = new ProposalDB();
+    private final ProjectDB PROJECTDB = new ProjectDB();
 
     // Constructor
     public ProposalContent() throws IOException {
@@ -155,14 +150,14 @@ public class ProposalContent extends ContentWindow {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 // No he conseguido utilizar getSelectedItem en el Combobox, pero funciona igualmente, quizás si pudiera eliminar las entidades no funcionaría correctamente
-                crudProposal.createProposal(proposalTable,
+                PROPOSALDB.createProposal(proposalTable,
                         rowTitle.getTxtInput().getText(),
                         rowDescription.getTxtInput().getText(),
                         rowStartDate.getTxtInput().getText(),
                         (cbEntity.getSelectedIndex() + 1)
                 );
 
-                cleanInputs();
+                InputOutput.cleanInputs(rowTitle, rowDescription, rowStartDate);
             }
         });
         mButtonsProposal.add(btnCreate);
@@ -175,9 +170,10 @@ public class ProposalContent extends ContentWindow {
         btnEdit.setPreferredSize(new Dimension(150, 40));
         btnEdit.setMaximumSize(new Dimension(150, 40));
         btnEdit.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudProposal.editProposal(proposalTable,
+                PROPOSALDB.editProposal(proposalTable,
                         rowTitle.getTxtInput().getText(),
                         rowDescription.getTxtInput().getText(),
                         rowStartDate.getTxtInput().getText(),
@@ -185,7 +181,7 @@ public class ProposalContent extends ContentWindow {
                         InputOutput.stringToInt(rowId.getTxtInput().getText())
                 );
 
-                cleanInputs();
+                InputOutput.cleanInputs(rowId, rowTitle, rowDescription, rowStartDate);
             }
         });
         mButtonsProposal.add(btnEdit);
@@ -200,7 +196,7 @@ public class ProposalContent extends ContentWindow {
         btnDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudProposal.softDeleteProposal(proposalTable,
+                PROPOSALDB.softDeleteProposal(proposalTable,
                         rowTitle.getTxtInput().getText(),
                         rowDescription.getTxtInput().getText(),
                         rowStartDate.getTxtInput().getText(),
@@ -208,7 +204,7 @@ public class ProposalContent extends ContentWindow {
                         InputOutput.stringToInt(rowId.getTxtInput().getText())
                 );
 
-                cleanInputs();
+                InputOutput.cleanInputs(rowId, rowTitle, rowDescription, rowStartDate);
             }
         });
         mButtonsProposal.add(btnDelete);
@@ -224,7 +220,7 @@ public class ProposalContent extends ContentWindow {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    crudProject.createProject(proposalTable, proposalDB, rowTitle.getTxtInput().getText(), rowDescription.getTxtInput().getText());
+                    PROJECTDB.createProject(proposalTable, PROPOSALDB, rowTitle.getTxtInput().getText(), rowDescription.getTxtInput().getText());
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (CustomException ce) {
@@ -237,7 +233,7 @@ public class ProposalContent extends ContentWindow {
         // Crea un espacio en blanco de separación
         mButtonsProposal.add(Box.createRigidArea(new Dimension(0, 5)));
 
-        // Botón vaciar lista
+        // Botón Ver proyectos
         ImageButton btnShow = new ImageButton("img/info.png", "VER PROYECTOS");
         btnShow.setPreferredSize(new Dimension(150, 40));
         btnShow.setMaximumSize(new Dimension(150, 40));
@@ -245,7 +241,7 @@ public class ProposalContent extends ContentWindow {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    crudProject.showData();
+                    PROJECTDB.showData(proposalTable);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -302,7 +298,7 @@ public class ProposalContent extends ContentWindow {
 
                 // Condición que limpia datos cada vez que seleccionamos una fila (sino peta)
                 if (selectedRow == -1) {
-                    cleanInputs();
+                    InputOutput.cleanInputs(rowId, rowTitle, rowDescription, rowStartDate);
                 }
                 else {
                     rowId.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 0).toString());
@@ -315,16 +311,5 @@ public class ProposalContent extends ContentWindow {
         });
 
         tablePanel.add(proposalPanelTable, BorderLayout.CENTER);
-    }
-
-
-    /**
-     * Método que permite limpiar el texto de los inputs (textfields)
-     */
-    private void cleanInputs() {
-        rowId.setTxtInput("");
-        rowTitle.setTxtInput("");
-        rowDescription.setTxtInput("");
-        rowStartDate.setTxtInput("");
     }
 }

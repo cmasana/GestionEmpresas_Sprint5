@@ -6,7 +6,6 @@ import custom_ui.components.forms.*;
 import custom_ui.tables.CustomTableConfig;
 import custom_ui.tables.CustomTableModel;
 import mainclasses.database.EmployeeDB;
-import modules.CrudUser;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -36,8 +35,8 @@ public class EmployeesContent extends ContentWindow {
     // Tabla
     private JTable userTable;
 
-    // Gestión de empleados
-    private final CrudUser crudUser = new CrudUser();
+    // Base de datos usuarios
+    private final EmployeeDB EMPLOYEEDB = new EmployeeDB();
 
     // Constructor
     public EmployeesContent() throws IOException {
@@ -116,9 +115,15 @@ public class EmployeesContent extends ContentWindow {
         btnCreate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudUser.createUser(userTable, rowName.getTxtInput().getText(), rowDni.getTxtInput().getText(),
-                                    rowNss.getTxtInput().getText(), rowEmployeeId.getTxtInput().getText());
-                cleanInputs();
+                EMPLOYEEDB.createUser(
+                        userTable,
+                        rowName.getTxtInput().getText(),
+                        rowDni.getTxtInput().getText(),
+                        rowNss.getTxtInput().getText(),
+                        rowEmployeeId.getTxtInput().getText()
+                );
+
+                InputOutput.cleanInputs(rowId, rowName, rowDni, rowNss, rowEmployeeId);
             }
         });
         mButtonsEmployee.add(btnCreate);
@@ -133,13 +138,16 @@ public class EmployeesContent extends ContentWindow {
         btnEdit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudUser.editUser(userTable,
+                EMPLOYEEDB.editUser(
+                        userTable,
                         InputOutput.stringToInt(rowId.getTxtInput().getText()),
                         rowName.getTxtInput().getText(),
                         rowDni.getTxtInput().getText(),
                         rowNss.getTxtInput().getText(),
                         rowEmployeeId.getTxtInput().getText()
                 );
+
+                InputOutput.cleanInputs(rowId, rowName, rowDni, rowNss, rowEmployeeId);
             }
         });
         mButtonsEmployee.add(btnEdit);
@@ -154,13 +162,15 @@ public class EmployeesContent extends ContentWindow {
         btnDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                crudUser.softDeleteUser(userTable,
+                EMPLOYEEDB.softDeleteUser(userTable,
                         InputOutput.stringToInt(rowId.getTxtInput().getText()),
                         rowName.getTxtInput().getText(),
                         rowDni.getTxtInput().getText(),
                         rowNss.getTxtInput().getText(),
                         rowEmployeeId.getTxtInput().getText()
                 );
+
+                InputOutput.cleanInputs(rowId, rowName, rowDni, rowNss, rowEmployeeId);
             }
         });
         mButtonsEmployee.add(btnDelete);
@@ -208,7 +218,7 @@ public class EmployeesContent extends ContentWindow {
 
                 // Condición que limpia datos cada vez que seleccionamos una fila (sino peta)
                 if (selectedRow == -1) {
-                    cleanInputs();
+                    InputOutput.cleanInputs(rowId, rowName, rowDni, rowNss, rowEmployeeId);
                 }
                 else {
                     rowId.setTxtInput(userTable.getValueAt(userTable.getSelectedRow(), 0).toString());
@@ -221,16 +231,5 @@ public class EmployeesContent extends ContentWindow {
         });
 
         module.add(panelTable, BorderLayout.CENTER);
-    }
-
-    /**
-     * Método que permite limpiar el texto de los inputs (textfields)
-     */
-    private void cleanInputs() {
-        rowId.setTxtInput("");
-        rowName.setTxtInput("");
-        rowDni.setTxtInput("");
-        rowNss.setTxtInput("");
-        rowEmployeeId.setTxtInput("");
     }
 }
