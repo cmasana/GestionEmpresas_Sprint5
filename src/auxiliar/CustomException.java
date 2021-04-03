@@ -1,11 +1,25 @@
 package auxiliar;
 
+import java.util.HashMap;
+
 /**
  * Permite crear Excepciones personalizadas y enviar su correspondiente mensaje de alerta
  */
 public class CustomException extends Exception {
     // Código de error
     private final int errorId;
+
+    // HashMap que almacena parejas clave/valor con el errorId y su correspondiente mensaje de alerta
+    private final HashMap<Integer, String> ERRORLIST = new HashMap<Integer, String>() {{
+        put(1111, "Error: Por favor, rellene todos los campos");
+        put(1112, "Error: El DNI que ha introducido es incorrecto");
+        put(1113, "Error: El NSS que ha introducido es incorrecto");
+        put(1114, "Error: No hay ninguna fila seleccionada");
+        put(1115, "Error: No hay ningún empleado creado");
+        put(1116, "Error: No hay ninguna propuesta creada");
+        put(1117, "Error: La fecha introducida es anterior a la actual");
+    }};
+
 
     // Constructor sobrecargado
     public CustomException(int errorId) {
@@ -19,31 +33,6 @@ public class CustomException extends Exception {
      */
     @Override
     public String getMessage() {
-        String alertMessage = "";
-
-        switch (errorId) {
-            case 1111:
-                alertMessage = "Error: Por favor, rellene todos los campos";
-                break;
-            case 1112:
-                alertMessage = "Error: El DNI que ha introducido es incorrecto";
-                break;
-            case 1113:
-                alertMessage = "Error: El NSS que ha introducido es incorrecto";
-                break;
-            case 1114:
-                alertMessage = "Error: No hay ninguna fila seleccionada";
-                break;
-            case 1115:
-                alertMessage = "Error: No hay ningún empleado creado";
-                break;
-            case 1116:
-                alertMessage = "Error: No hay ninguna propuesta creada";
-                break;
-            case 1117:
-                alertMessage = "Error: La fecha introducida es anterior a la actual";
-                break;
-        }
-        return alertMessage;
+        return ERRORLIST.get(errorId);
     }
 }
