@@ -224,12 +224,26 @@ public class ProposalDB {
      * @param startDate     fecha de la propuesta
      * @param indexEntity   indice del objeto del JCombobox
      */
-    public void editProposal(JTable proposalTable, String title, String description, String startDate, int indexEntity, int idProposal) {
+    public void editProposal(JTable proposalTable, String title, String description, String startDate, int indexEntity, String idProposal) {
         String sql = "UPDATE PROPOSALS SET title = ?, description = ?, startDate = ?, creationdate = ?, identity = ? WHERE idproposal = ?";
 
         try {
-            // Si los campos están vacíos
-            if (title.isEmpty() || description.isEmpty() || startDate.isEmpty() || indexEntity == -1) {
+            // Almacenamos el nº total de filas que hay en la tabla
+            int totalRows = proposalTable.getRowCount();
+
+            // Almacena el nº de fila seleccionado
+            int selectedRow = proposalTable.getSelectedRow();
+
+            // Si no hay ninguna fila creada
+            if (totalRows == 0) {
+                throw new CustomException(1116);
+
+                // Si no hay ninguna fila seleccionada
+            } else if (selectedRow < 0) {
+                throw new CustomException(1114);
+
+                // Si los campos están vacíos
+            } else if (title.isEmpty() || description.isEmpty() || startDate.isEmpty() || indexEntity == -1) {
                 throw new CustomException(1111);
 
                 // Si la fecha introducida es anterior a HOY
@@ -245,7 +259,7 @@ public class ProposalDB {
                     stmt.setString(4, InputOutput.todayDate());
                     stmt.setInt(5, indexEntity);
 
-                    stmt.setInt(6, idProposal);
+                    stmt.setInt(6, InputOutput.stringToInt(idProposal));
 
                     stmt.executeUpdate();
                     //stmt.close(); // No hace falta con el try-with-resources
@@ -281,8 +295,9 @@ public class ProposalDB {
      * @param description   descripción de la propuesta
      * @param startDate     fecha de la propuesta
      * @param indexEntity   indice del objeto del JCombobox
+     * @param idProposal    id de la propuesta
      */
-    public void softDeleteProposal(JTable proposalTable, String title, String description, String startDate, int indexEntity, int idProposal) {
+    public void softDeleteProposal(JTable proposalTable, String title, String description, String startDate, int indexEntity, String idProposal) {
         String sql = "UPDATE PROPOSALS SET status = ? WHERE idproposal = ?";
 
         try {
@@ -309,7 +324,7 @@ public class ProposalDB {
 
                     stmt.setString(1, "inactive");
 
-                    stmt.setInt(2, idProposal);
+                    stmt.setInt(2, InputOutput.stringToInt(idProposal));
 
                     stmt.executeUpdate();
                     //stmt.close(); // No hace falta con el try-with-resources

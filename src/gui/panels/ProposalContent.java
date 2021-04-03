@@ -16,32 +16,29 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.metal.MetalButtonUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class ProposalContent extends ContentWindow {
+    // Simula las bbdd
+    private final ProposalDB PROPOSALDB = new ProposalDB();
+    private final ProjectDB PROJECTDB = new ProjectDB();
     // Paneles
     private JPanel module;
     private JPanel management;
     private JPanel tablePanel;
-
     // Formulario
     private RowForm rowId;
     private RowForm rowTitle;
     private RowForm rowDescription;
     private RowForm rowStartDate;
-
     // ComboBox
     private JComboBox<Entity> cbEntity;
-
     // Tabla
     private JTable proposalTable;
-
-    // Simula las bbdd
-    private final ProposalDB PROPOSALDB = new ProposalDB();
-    private final ProjectDB PROJECTDB = new ProjectDB();
 
     // Constructor
     public ProposalContent() throws IOException {
@@ -54,7 +51,7 @@ public class ProposalContent extends ContentWindow {
     @Override
     protected void putContentModule() throws IOException {
         module = new JPanel();
-        module.setLayout(new GridLayout(2,1));
+        module.setLayout(new GridLayout(2, 1));
         module.setBackground(DYE.getSECONDARY());
 
         this.putManagementPanel();
@@ -69,7 +66,7 @@ public class ProposalContent extends ContentWindow {
     private void putManagementPanel() throws IOException {
         management = new JPanel();
         management.setLayout(new BorderLayout());
-        management.setBorder(new EmptyBorder(0,50,0,0));
+        management.setBorder(new EmptyBorder(0, 50, 0, 0));
         management.setBackground(DYE.getSECONDARY());
 
         this.putManagementButtons();
@@ -84,8 +81,8 @@ public class ProposalContent extends ContentWindow {
     private void putForm() throws IOException {
         JPanel form = new JPanel();
         form.setBackground(DYE.getSECONDARY());
-        form.setLayout(new GridLayout(5,1));
-        form.setBorder(new EmptyBorder(15,50,15,100)); // Top, left, bottom, right
+        form.setLayout(new GridLayout(5, 1));
+        form.setBorder(new EmptyBorder(15, 50, 15, 100)); // Top, left, bottom, right
 
         rowId = new RowForm("ID", false);
         form.add(rowId);
@@ -109,11 +106,12 @@ public class ProposalContent extends ContentWindow {
 
     /**
      * Permite mostrar un panel con un Label y un Combobox de Entidades
+     *
      * @return devuelve un JPanel con los componentes asignados
      */
     private JPanel putCombobox() throws IOException {
         JPanel comboPanel = new JPanel();
-        comboPanel.setBorder(new EmptyBorder(20,75,20,297)); // Top, left, bottom, right
+        comboPanel.setBorder(new EmptyBorder(20, 75, 20, 297)); // Top, left, bottom, right
         comboPanel.setLayout(new BoxLayout(comboPanel, BoxLayout.Y_AXIS));
         comboPanel.setBackground(DYE.getSECONDARY());
 
@@ -139,7 +137,7 @@ public class ProposalContent extends ContentWindow {
     private void putManagementButtons() throws IOException {
         JPanel mButtonsProposal = new JPanel();
         mButtonsProposal.setLayout(new BoxLayout(mButtonsProposal, BoxLayout.Y_AXIS));
-        mButtonsProposal.setBorder(new EmptyBorder(110,50,0,0)); // Top, left, bottom, right
+        mButtonsProposal.setBorder(new EmptyBorder(110, 50, 0, 0)); // Top, left, bottom, right
         mButtonsProposal.setBackground(DYE.getSECONDARY());
 
         // Botón Crear
@@ -169,21 +167,24 @@ public class ProposalContent extends ContentWindow {
         ImageButton btnEdit = new ImageButton("img/edit.png", "MODIFICAR");
         btnEdit.setPreferredSize(new Dimension(150, 40));
         btnEdit.setMaximumSize(new Dimension(150, 40));
+
         btnEdit.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+
                 PROPOSALDB.editProposal(proposalTable,
                         rowTitle.getTxtInput().getText(),
                         rowDescription.getTxtInput().getText(),
                         rowStartDate.getTxtInput().getText(),
                         (cbEntity.getSelectedIndex() + 1),
-                        InputOutput.stringToInt(rowId.getTxtInput().getText())
+                        rowId.getTxtInput().getText()
                 );
 
                 InputOutput.cleanInputs(rowId, rowTitle, rowDescription, rowStartDate);
             }
         });
+
         mButtonsProposal.add(btnEdit);
 
         // Crea un espacio en blanco de separación
@@ -201,7 +202,7 @@ public class ProposalContent extends ContentWindow {
                         rowDescription.getTxtInput().getText(),
                         rowStartDate.getTxtInput().getText(),
                         (cbEntity.getSelectedIndex() + 1),
-                        InputOutput.stringToInt(rowId.getTxtInput().getText())
+                        rowId.getTxtInput().getText()
                 );
 
                 InputOutput.cleanInputs(rowId, rowTitle, rowDescription, rowStartDate);
@@ -265,7 +266,7 @@ public class ProposalContent extends ContentWindow {
      * Añade una tabla y su configuración al panel actual
      */
     private void putProposalTable() throws IOException {
-        String[] titulos = {"ID","Título", "Descripción", "Fecha Inicio", "Entidad"};
+        String[] titulos = {"ID", "Título", "Descripción", "Fecha Inicio", "Entidad"};
 
         JPanel proposalPanelTable = new JPanel(new BorderLayout());
         proposalPanelTable.setBackground(DYE.getSECONDARY());
@@ -299,8 +300,7 @@ public class ProposalContent extends ContentWindow {
                 // Condición que limpia datos cada vez que seleccionamos una fila (sino peta)
                 if (selectedRow == -1) {
                     InputOutput.cleanInputs(rowId, rowTitle, rowDescription, rowStartDate);
-                }
-                else {
+                } else {
                     rowId.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 0).toString());
                     rowTitle.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 1).toString());
                     rowDescription.setTxtInput(proposalTable.getValueAt(proposalTable.getSelectedRow(), 2).toString());
