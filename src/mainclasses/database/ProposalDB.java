@@ -27,7 +27,7 @@ import java.util.Date;
  */
 public class ProposalDB {
     // ArrayList que simula la base de datos
-    private final ArrayList<Proposal> listaPropuestas = new ArrayList<Proposal>();
+    private final ArrayList<Proposal> PROPOSALS = new ArrayList<Proposal>();
 
     // Constructor vacío
     public ProposalDB() {
@@ -39,46 +39,55 @@ public class ProposalDB {
 
     /**
      * Añadir propuesta al array list
+     *
      * @param proposal Objeto de la clase Proposal
      */
     public void addProposal(Proposal proposal) {
-        listaPropuestas.add(proposal);
+        PROPOSALS.add(proposal);
     }
 
     /**
      * Elimina una propuesta del ArrayList
-     * @param posicion posición de la propuesta dentro del ArrayList
      */
-    public void removeProposal(int posicion) {
-        listaPropuestas.remove(posicion);
+    public void removeProposal(int idProposal) {
+        Proposal proposal = null;
+        for (int i = 0; i < sizeProposalDB(); i++) {
+            if (PROPOSALS.get(i).getIdProposal() == idProposal) {
+                proposal = PROPOSALS.get(i);
+            }
+        }
+        PROPOSALS.remove(proposal);
     }
 
     /**
      * Obtiene una propuesta desde el ArrayList
+     *
      * @param posicion posición de la propuesta dentro del ArrayList
      * @return devuelve un objeto de la clase Proposal
      */
     public Proposal getProposalFromDB(int posicion) {
-        return listaPropuestas.get(posicion);
+        return PROPOSALS.get(posicion);
     }
 
     /**
      * Obtiene el tamaño del ArrayList de propuestas
+     *
      * @return devuelve un entero con el tamaño del ArrayList de tipo Proposal
      */
     public int sizeProposalDB() {
-        return listaPropuestas.size();
+        return PROPOSALS.size();
     }
 
     /**
      * Permite transformar un arraylist en un array 2d de Strings
      * (es necesario para cargar los datos del arraylist en el JTable)
+     *
      * @return devuelve un array de Strings
      */
     public String[][] listProposalsObject() {
         String[][] array = new String[sizeProposalDB()][5];
 
-        for (int i = 0; i < sizeProposalDB(); i ++) {
+        for (int i = 0; i < sizeProposalDB(); i++) {
             array[i][0] = String.valueOf(getProposalFromDB(i).getIdProposal());
             array[i][1] = getProposalFromDB(i).getTitle();
             array[i][2] = getProposalFromDB(i).getDescription();
@@ -94,10 +103,10 @@ public class ProposalDB {
      */
     private void getProposalsTable() {
         String sql = "SELECT p.idproposal, p.title, p.description, p.startdate, e.id, e.entityname, e.city, e.phone, e.cif, e.territorialid " +
-                     "FROM PROPOSALS AS p " + "INNER JOIN ENTITIES AS e " +
-                     "ON p.identity = e.id " +
-                     "WHERE status = 'active'" +
-                     "ORDER BY p.idproposal ASC";
+                "FROM PROPOSALS AS p " + "INNER JOIN ENTITIES AS e " +
+                "ON p.identity = e.id " +
+                "WHERE status = 'active'" +
+                "ORDER BY p.startdate ASC";
 
         String title, description, entityName, city, territorialId, cif;
         int idProposal, phone, idSchool, idCompany;
@@ -105,7 +114,7 @@ public class ProposalDB {
 
 
         // Try-with-resources Statement: Se realiza el close() automaticamente
-        try(Statement stmt = DatabaseConnection.getConnection().createStatement()) {
+        try (Statement stmt = DatabaseConnection.getConnection().createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
 
             Proposal proposal;
@@ -218,6 +227,7 @@ public class ProposalDB {
 
     /**
      * Permite modificar propuestas
+     *
      * @param proposalTable tabla donde se visualizan las propuestas
      * @param title         nombre de la propuesta
      * @param description   descripción de la propuesta
@@ -226,6 +236,7 @@ public class ProposalDB {
      */
     public void editProposal(JTable proposalTable, String title, String description, String startDate, int indexEntity, String idProposal) {
         String sql = "UPDATE PROPOSALS SET title = ?, description = ?, startDate = ?, creationdate = ?, identity = ? WHERE idproposal = ?";
+        int resultado;
 
         try {
             // Almacenamos el nº total de filas que hay en la tabla
@@ -251,30 +262,35 @@ public class ProposalDB {
                 throw new CustomException(1117);
 
             } else {
-                try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+                // Mensaje de confirmación al modificar
+                resultado = InputOutput.editConfirmation();
 
-                    stmt.setString(1, title);
-                    stmt.setString(2, description);
-                    stmt.setString(3, startDate);
-                    stmt.setString(4, InputOutput.todayDate());
-                    stmt.setInt(5, indexEntity);
+                if (InputOutput.ifOk(resultado)) {
+                    try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 
-                    stmt.setInt(6, InputOutput.stringToInt(idProposal));
+                        stmt.setString(1, title);
+                        stmt.setString(2, description);
+                        stmt.setString(3, startDate);
+                        stmt.setString(4, InputOutput.todayDate());
+                        stmt.setInt(5, indexEntity);
 
-                    stmt.executeUpdate();
-                    //stmt.close(); // No hace falta con el try-with-resources
+                        stmt.setInt(6, InputOutput.stringToInt(idProposal));
 
-                    // Añadimos la entrada al log
-                    Log.capturarRegistro("PROPOSAL EDIT " + title + " "
-                            + description + " "
-                            + InputOutput.stringToDate(startDate) + "  "
-                            + "ENTITY ID " + indexEntity);
+                        stmt.executeUpdate();
+                        //stmt.close(); // No hace falta con el try-with-resources
 
-                    // Actualizamos datos de la tabla
-                    showData(proposalTable);
+                        // Añadimos la entrada al log
+                        Log.capturarRegistro("PROPOSAL EDIT " + title + " "
+                                + description + " "
+                                + InputOutput.stringToDate(startDate) + "  "
+                                + "ENTITY ID " + indexEntity);
 
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                        // Actualizamos datos de la tabla
+                        showData(proposalTable);
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } catch (CustomException ce) {
@@ -290,6 +306,7 @@ public class ProposalDB {
 
     /**
      * Permite modificar propuestas
+     *
      * @param proposalTable tabla donde se visualizan las propuestas
      * @param title         nombre de la propuesta
      * @param description   descripción de la propuesta
@@ -299,6 +316,7 @@ public class ProposalDB {
      */
     public void softDeleteProposal(JTable proposalTable, String title, String description, String startDate, int indexEntity, String idProposal) {
         String sql = "UPDATE PROPOSALS SET status = ? WHERE idproposal = ?";
+        int resultado;
 
         try {
             // Almacenamos el nº total de filas que hay en la tabla
@@ -320,30 +338,33 @@ public class ProposalDB {
                 throw new CustomException(1111);
 
             } else {
-                try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+                // Mensaje de confirmación para eliminar
+                resultado = InputOutput.deleteConfirmation();
 
-                    stmt.setString(1, "inactive");
+                if (InputOutput.ifOk(resultado)) {
+                    try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 
-                    stmt.setInt(2, InputOutput.stringToInt(idProposal));
+                        stmt.setString(1, "inactive");
 
-                    stmt.executeUpdate();
-                    //stmt.close(); // No hace falta con el try-with-resources
+                        stmt.setInt(2, InputOutput.stringToInt(idProposal));
 
-                    // Añadimos la entrada al log
-                    Log.capturarRegistro("PROPOSAL DELETE " + title + " "
-                            + description + " "
-                            + InputOutput.stringToDate(startDate) + "  "
-                            + "ENTITY ID " + indexEntity);
+                        stmt.executeUpdate();
+                        //stmt.close(); // No hace falta con el try-with-resources
 
-                    // Actualizamos datos de la tabla
-                    showData(proposalTable);
+                        // Añadimos la entrada al log
+                        Log.capturarRegistro("PROPOSAL DELETE " + title + " "
+                                + description + " "
+                                + InputOutput.stringToDate(startDate) + "  "
+                                + "ENTITY ID " + indexEntity);
 
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                        // Actualizamos datos de la tabla
+                        showData(proposalTable);
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-
-
         } catch (CustomException ce) {
             InputOutput.printAlert(ce.getMessage());
 
@@ -356,20 +377,46 @@ public class ProposalDB {
     }
 
     /**
+     * Cambia el estado de una propuesta a 'in progress' cuando la transformamos en proyecto
+     *
+     * @param proposalTable tabla donde se visualizan las propuestas
+     * @param idProposal    id de la propuesta
+     */
+    public void toProject(JTable proposalTable, String idProposal) {
+        String sql = "UPDATE PROPOSALS SET status = ? WHERE idproposal = ?";
+
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+
+            stmt.setString(1, "in progress");
+
+            stmt.setInt(2, InputOutput.stringToInt(idProposal));
+
+            stmt.executeUpdate();
+
+            // Eliminamos elemento del ArrayList
+            this.removeProposal(InputOutput.stringToInt(idProposal));
+
+            // Actualizamos datos de la tabla
+            this.showData(proposalTable);
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Muestra los datos actualizados en la tabla de propuestas
      *
      * @param proposalTable tabla dónde se visualizan las propuestas creadas
      */
     public void showData(JTable proposalTable) {
 
-        // Instanceamos el objeto para cargar los datos de la bbdd
-        ProposalDB propdb = new ProposalDB();
-
         String[] colIdentifiers = {"ID", "Título", "Descripción", "Fecha de inicio", "Entidad"};
 
         // Añade los datos al modelo
         proposalTable.setModel(new CustomTableModel(
-                propdb.listProposalsObject(),
+                this.listProposalsObject(),
                 colIdentifiers
         ));
 
