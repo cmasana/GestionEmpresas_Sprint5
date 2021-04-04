@@ -9,14 +9,14 @@ import mainclasses.user.Employee;
  */
 public class Project {
 
-    private int idProject;
-    private String name;
+    private final int idProject;
+    private String title;
     private Employee manager;
     private String description;
 
-    public Project(int idProject, String name, String description, Employee manager) {
+    public Project(int idProject, String title, String description, Employee manager) {
         this.idProject = idProject;
-        this.name = name;
+        this.title = title;
         this.description = description;
         this.manager = manager;
     }
@@ -25,16 +25,12 @@ public class Project {
         return idProject;
     }
 
-    public void setIdProject(int idProject) {
-        this.idProject = idProject;
+    public String getTitle() {
+        return title;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Employee getManager() {
@@ -55,7 +51,7 @@ public class Project {
 
 
     public String toString() {
-        return  "Título: " + name + " | " +
+        return  "Título: " + title + " | " +
                 "Descripción: " + description + " | " +
                 "Jefe de proyecto: " + manager.getName();
     }

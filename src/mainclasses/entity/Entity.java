@@ -76,8 +76,6 @@ package mainclasses.entity;
      */
     @Override
     public String toString() {
-        return  "ID: " + this.idEntity + " | " +
-                "Nombre: " + this.nombre + " | " +
-                "Población: " + this.poblacion + " | ";
+        return this.nombre + " | ";
     }
 }

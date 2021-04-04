@@ -77,11 +77,10 @@ public class EmployeesContent extends ContentWindow {
     private void putForm() throws IOException {
         JPanel form = new JPanel();
         form.setBackground(DYE.getSECONDARY());
-        form.setLayout(new GridLayout(5, 1));
+        form.setLayout(new GridLayout(4, 1));
         form.setBorder(new EmptyBorder(20,50,20,100)); // Top, left, bottom, right
 
         rowId = new RowForm("ID", false);
-        form.add(rowId);
 
         rowName = new RowForm("Nombre", true);
         form.add(rowName);
@@ -140,7 +139,7 @@ public class EmployeesContent extends ContentWindow {
             public void actionPerformed(ActionEvent actionEvent) {
                 EMPLOYEEDB.editUser(
                         userTable,
-                        InputOutput.stringToInt(rowId.getTxtInput().getText()),
+                        rowId.getTxtInput().getText(),
                         rowName.getTxtInput().getText(),
                         rowDni.getTxtInput().getText(),
                         rowNss.getTxtInput().getText(),
@@ -163,7 +162,7 @@ public class EmployeesContent extends ContentWindow {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 EMPLOYEEDB.softDeleteUser(userTable,
-                        InputOutput.stringToInt(rowId.getTxtInput().getText()),
+                        rowId.getTxtInput().getText(),
                         rowName.getTxtInput().getText(),
                         rowDni.getTxtInput().getText(),
                         rowNss.getTxtInput().getText(),
