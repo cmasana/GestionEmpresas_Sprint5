@@ -14,23 +14,24 @@ import java.io.IOException;
  * Muestra un panel para la creación de proyectos
  */
 public class ProjectDialog extends JPanel {
+    private JTextField txtIdProposal;
     private JTextField txtTitle;
     private JTextField txtDescription;
     private JComboBox<Employee> cbEmployee;
 
-    private final EmployeeDB employeeList = new EmployeeDB();
+    private final EmployeeDB EMPLOYEES = new EmployeeDB();
 
     // Paleta de colores
     private final ColorsPalette DYE = new ColorsPalette();
 
     // Constructor
-    public ProjectDialog(String title, String description) throws IOException {
-        this.initComponents(title, description);
+    public ProjectDialog(String title, String description, String idProposal) throws IOException {
+        this.initComponents(title, description, idProposal);
     }
 
-    private void initComponents(String title, String description) throws IOException {
+    private void initComponents(String title, String description, String idProposal) throws IOException {
         this.basicConfig();
-        this.putComponents(title, description);
+        this.putComponents(title, description, idProposal);
     }
 
     private void basicConfig() {
@@ -38,7 +39,11 @@ public class ProjectDialog extends JPanel {
         this.setBorder(new EmptyBorder(50,50,50,50));
     }
 
-    private void putComponents(String title, String description) throws IOException {
+    private void putComponents(String title, String description, String idProposal) throws IOException {
+        txtIdProposal = new JTextField(50);
+        txtIdProposal.setEditable(false);
+        txtIdProposal.setText(idProposal);
+
         JLabel lbProposal = new JLabel("Título");
         txtTitle = new JTextField(50);
         txtTitle.setEditable(false);
@@ -54,7 +59,7 @@ public class ProjectDialog extends JPanel {
 
         // ComboBox con objetos de tipo Empleado
         JLabel lbEmployee = new JLabel("Jefe Proyecto");
-        cbEmployee = new JComboBox<>(employeeList.listEmployees());
+        cbEmployee = new JComboBox<>(EMPLOYEES.listEmployees());
 
 
         // Añadimos componentes al panel principal
@@ -75,6 +80,9 @@ public class ProjectDialog extends JPanel {
     }
 
     // Getters
+    public String getTxtIdProposal() {
+        return txtIdProposal.getText();
+    }
     public String getTxtTitle() {
         return txtTitle.getText();
     }

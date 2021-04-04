@@ -3,6 +3,7 @@ package gui.dialogs;
 import custom_ui.colors.ColorsPalette;
 import custom_ui.tables.CustomTableConfig;
 import custom_ui.tables.CustomTableModel;
+import mainclasses.database.ProjectDB;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +30,9 @@ public class ShowProjects extends JPanel {
      * Añade una tabla y su configuración al panel actual
      */
     private void putProjectTable() throws IOException {
-        String[] titulos = {"Título", "Descripción", "Manager"};
+        String[] titulos = {"ID" ,"Título", "Descripción", "Manager"};
+
+        ProjectDB PROJECTS = new ProjectDB();
 
         JPanel projectPanelTable = new JPanel(new BorderLayout());
         projectPanelTable.setBackground(DYE.getSECONDARY());
@@ -42,9 +45,7 @@ public class ShowProjects extends JPanel {
 
         // Modelo por defecto de la tabla
         projectTable.setModel(new CustomTableModel(
-                new Object [][] {
-
-                },
+                PROJECTS.listProjectsObject(),
                 titulos
         ));
 
