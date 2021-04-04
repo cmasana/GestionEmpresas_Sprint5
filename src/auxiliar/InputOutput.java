@@ -96,6 +96,23 @@ public class InputOutput {
     }
 
     /**
+     * Muestra un mensaje de confirmación cuando queremos modificar un elemento
+     * @return devuelve un entero, OK = 0
+     */
+    public static int editConfirmation() {
+        return JOptionPane.showConfirmDialog(null, "Estás seguro?", "El elemento va a ser modificado", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+    }
+
+    /**
+     * Comprueba la opción seleccionada en los mensajes de confirmación
+     * @param resultado entero con el valor de la opción seleccionada (OK = 0)
+     * @return devuelve TRUE si el valor es 0
+     */
+    public static boolean ifOk(int resultado) {
+        return resultado == 0;
+    }
+
+    /**
      * Muestra un mensaje de confirmación cuando queremos eliminar todos los elementos
      * @return devuelve un entero, OK = 0
      */
