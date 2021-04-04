@@ -29,7 +29,7 @@ public class RowForm extends JPanel {
      */
     private void initComponent() throws IOException {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBorder(new EmptyBorder(15, 75, 15, 300));
+        this.setBorder(new EmptyBorder(20, 75, 20, 300));
         this.setBackground(DYE.getSECONDARY());
     }
 

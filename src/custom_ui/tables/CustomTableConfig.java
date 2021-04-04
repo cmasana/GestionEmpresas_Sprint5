@@ -17,13 +17,22 @@ public class CustomTableConfig {
         // Row Height
         table.setRowHeight(30);
 
+        // Column Header Width
+        /*
+        Es necesario poner la primera columna con un Min/Max a 0 para ocultar el ID
+        En las celdas, hacemos lo mismo
+         */
+        table.getTableHeader().getColumnModel().getColumn(0).setMinWidth(0);
+        table.getTableHeader().getColumnModel().getColumn(0).setMaxWidth(0);
+
         // Columns Width
-        table.getColumnModel().getColumn(0).setMaxWidth(50);
+        table.getColumnModel().getColumn(0).setMinWidth(0);
+        table.getColumnModel().getColumn(0).setMaxWidth(0);
         table.getColumnModel().getColumn(1).setMaxWidth(200);
         table.getColumnModel().getColumn(1).setPreferredWidth(200);
         table.getColumnModel().getColumn(2).setMaxWidth(400);
         table.getColumnModel().getColumn(2).setPreferredWidth(400);
-        table.getColumnModel().getColumn(3).setMaxWidth(150);
+        //table.getColumnModel().getColumn(3).setMaxWidth(150);
         table.getColumnModel().getColumn(3).setPreferredWidth(150);
 
         table.setIntercellSpacing(new Dimension(1,1));
