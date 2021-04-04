@@ -340,9 +340,11 @@ public class EmployeeDB {
     public void showData(JTable userTable) {
         String [] colIdentifiers = {"ID","Nombre", "DNI", "NSS", "Cod. Empleado"};
 
+        EmployeeDB employees = new EmployeeDB();
+
         // Añade los datos al modelo
         userTable.setModel(new CustomTableModel(
-                this.listEmployeesObject(),
+                employees.listEmployeesObject(),
                 colIdentifiers
         ));
 

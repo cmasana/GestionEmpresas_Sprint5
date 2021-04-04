@@ -210,9 +210,11 @@ public class ProjectDB {
         // Implementa panel para visualizar proyectos
         ShowProjects showProjects = new ShowProjects();
 
+        ProjectDB projects = new ProjectDB();
+
         // Añade los datos al modelo
         showProjects.getProjectTable().setModel(new CustomTableModel(
-                this.listProjectsObject(),
+                projects.listProjectsObject(),
                 new String [] {
                         "ID", "Título", "Descripción", "Manager"
                 }

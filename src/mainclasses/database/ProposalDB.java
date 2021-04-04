@@ -122,17 +122,13 @@ public class ProposalDB {
             Company company;
 
             while (rs.next()) {
+                idProposal = rs.getInt("idproposal");
+                title = rs.getString("title");
+                description = rs.getString("description");
+                date = rs.getDate("startdate");
+
                 // Si el cif es nulo, la entidad es una escuela
                 if (rs.getString("cif") == null) {
-                    /*
-                    Con el inner join podemos obtener un ResultSet más completo y mostrar así el objeto de School
-                    en la JTable
-                     */
-                    idProposal = rs.getInt("idproposal");
-                    title = rs.getString("title");
-                    description = rs.getString("description");
-                    date = rs.getDate("startdate");
-
                     idSchool = rs.getInt("id");
                     entityName = rs.getString("entityname");
                     city = rs.getString("city");
@@ -144,11 +140,6 @@ public class ProposalDB {
 
                     this.addProposal(proposal);
                 } else {
-                    idProposal = rs.getInt("idproposal");
-                    title = rs.getString("title");
-                    description = rs.getString("description");
-                    date = rs.getDate("startdate");
-
                     idCompany = rs.getInt("id");
                     entityName = rs.getString("entityname");
                     city = rs.getString("city");
@@ -411,12 +402,14 @@ public class ProposalDB {
      * @param proposalTable tabla dónde se visualizan las propuestas creadas
      */
     public void showData(JTable proposalTable) {
-
         String[] colIdentifiers = {"ID", "Título", "Descripción", "Fecha de inicio", "Entidad"};
+
+        // Instanceamos de nuevo para refrescar datos ???
+        ProposalDB proposals = new ProposalDB();
 
         // Añade los datos al modelo
         proposalTable.setModel(new CustomTableModel(
-                this.listProposalsObject(),
+                proposals.listProposalsObject(),
                 colIdentifiers
         ));
 
