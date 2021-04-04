@@ -98,7 +98,8 @@ public class EmployeeDB {
      * Permite cargar un ResultSet con los datos de la bbdd en el arraylist de esta clase
      */
     private void getUsersTable() {
-        String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS WHERE status = 'active'";
+        String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS WHERE status = 'active' " +
+                     "ORDER BY username ASC";
 
         // Try-with-resources Statement: Se realiza el close() automaticamente
         try(Statement stmt = DatabaseConnection.getConnection().createStatement()) {
@@ -183,7 +184,7 @@ public class EmployeeDB {
      * @param nss        nss del empleado
      * @param employeeId codigo del empleado
      */
-    public void softDeleteUser(JTable userTable, int idUser, String name, String dni, String nss, String employeeId) {
+    public void softDeleteUser(JTable userTable, String idUser, String name, String dni, String nss, String employeeId) {
         String sql = "UPDATE USERS SET status = ?, updateddate = ? WHERE iduser = ?";
         int resultado;
 
@@ -222,7 +223,7 @@ public class EmployeeDB {
                                     stmt.setString(1, "inactive");
                                     stmt.setString(2, InputOutput.todayDate());
 
-                                    stmt.setInt(3, idUser);
+                                    stmt.setInt(3, InputOutput.stringToInt(idUser));
 
                                     stmt.executeUpdate();
                                     stmt.close();
@@ -253,16 +254,16 @@ public class EmployeeDB {
 
     /**
      * Permite modificar un empleado
-     *
-     * @param userTable  tabla dónde se visualizan los empleados
+     *  @param userTable  tabla dónde se visualizan los empleados
      * @param idUser     id del usuario en la bbdd
      * @param name       nombre del empleado
      * @param dni        dni del empleado
      * @param nss        nss del empleado
      * @param employeeId codigo del empleado
      */
-    public void editUser(JTable userTable, int idUser, String name, String dni, String nss, String employeeId) {
+    public void editUser(JTable userTable, String idUser, String name, String dni, String nss, String employeeId) {
         String sql = "UPDATE USERS SET username = ?, dni = ?, nss = ?, employeeid = ?, updateddate = ? WHERE iduser = ?";
+        int resultado;
 
         try(PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 
@@ -292,23 +293,28 @@ public class EmployeeDB {
                                 throw new CustomException(1113);
 
                             } else {
-                                stmt.setString(1, name);
-                                stmt.setString(2, dni);
-                                stmt.setString(3, nss);
-                                stmt.setString(4, employeeId);
-                                stmt.setString(5, InputOutput.todayDate());
+                                // Mensaje de confirmación al modificar
+                                resultado = InputOutput.editConfirmation();
 
-                                stmt.setInt(6, idUser);
+                                if (InputOutput.ifOk(resultado)) {
+                                    stmt.setString(1, name);
+                                    stmt.setString(2, dni);
+                                    stmt.setString(3, nss);
+                                    stmt.setString(4, employeeId);
+                                    stmt.setString(5, InputOutput.todayDate());
 
-                                stmt.executeUpdate();
-                                stmt.close();
+                                    stmt.setInt(6, InputOutput.stringToInt(idUser));
 
-                                // Añadimos la entrada al log
-                                Log.capturarRegistro("EMPLOYEE EDIT " + name + " " + dni + " "
-                                        + nss + "  " + employeeId);
+                                    stmt.executeUpdate();
+                                    stmt.close();
 
-                                // Actualizamos datos de la tabla
-                                showData(userTable);
+                                    // Añadimos la entrada al log
+                                    Log.capturarRegistro("EMPLOYEE EDIT " + name + " " + dni + " "
+                                            + nss + "  " + employeeId);
+
+                                    // Actualizamos datos de la tabla
+                                    showData(userTable);
+                                }
                             }
                         }
                     }
@@ -332,14 +338,11 @@ public class EmployeeDB {
      * @param userTable tabla dónde se visualizan los empleados creados
      */
     public void showData(JTable userTable) {
-        // Instanceamos el objeto para cargar los datos de la bbdd
-        EmployeeDB EMPDB = new EmployeeDB();
-
         String [] colIdentifiers = {"ID","Nombre", "DNI", "NSS", "Cod. Empleado"};
 
         // Añade los datos al modelo
         userTable.setModel(new CustomTableModel(
-                EMPDB.listEmployeesObject(),
+                this.listEmployeesObject(),
                 colIdentifiers
         ));
 
