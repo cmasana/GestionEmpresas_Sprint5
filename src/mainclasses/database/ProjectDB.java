@@ -17,7 +17,9 @@ import mainclasses.user.Employee;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,7 +34,7 @@ public class ProjectDB {
 
     // Constructor vacío
     public ProjectDB() {
-
+        this.getProjectsTable();
     }
 
 
@@ -81,9 +83,9 @@ public class ProjectDB {
 
         for (int i = 0; i < sizeProjectDB(); i ++) {
             array[i][0] = String.valueOf(getProjectFromDB(i).getIdProject());
-            array[i][1] = getProjectFromDB(i).getName();
-            array[i][2] = String.valueOf(getProjectFromDB(i).getManager());
-            array[i][3] = getProjectFromDB(i).getDescription();
+            array[i][1] = getProjectFromDB(i).getTitle();
+            array[i][2] = getProjectFromDB(i).getDescription();
+            array[i][3] = getProjectFromDB(i).getManager().getName();
         }
 
         return array;
@@ -93,64 +95,40 @@ public class ProjectDB {
      * Permite cargar un ResultSet con los datos de la bbdd en el arraylist de esta clase
      */
     private void getProjectsTable() {
-        String sql = "SELECT p.idproposal, p.title, p.description, p.startdate, e.id, e.entityname, e.city, e.phone, e.cif, e.territorialid " +
-                "FROM PROPOSALS AS p " + "INNER JOIN ENTITIES AS e " +
-                "ON p.identity = e.id " +
-                "WHERE status = 'active'" +
-                "ORDER BY p.idproposal ASC";
+        String sql = "SELECT p.idproject, p.title, p.description, u.iduser, u.username, u.dni, u.nss, u.employeeid " +
+                     "FROM PROJECTS AS p " +
+                     "INNER JOIN USER_PROJECTS AS up " +
+                        "ON p.idproject = up.idproject " +
+                     "INNER JOIN USERS AS u " +
+                        "ON up.iduser = u.iduser " +
+                     "WHERE p.status = 'active' " +
+                     "ORDER BY p.idproject ASC";
 
-        String title, description, entityName, city, territorialId, cif;
-        int idProposal, phone, idSchool, idCompany;
-        Date date;
-
+        String title, description, userName, dni, nss, employeeId;
+        int idProject, idUser;
 
         // Try-with-resources Statement: Se realiza el close() automaticamente
         try(Statement stmt = DatabaseConnection.getConnection().createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
 
-            Proposal proposal;
-            School school;
-            Company company;
+            Employee employee;
+            Project project;
 
             while (rs.next()) {
-                // Si el cif es nulo, la entidad es una escuela
-                if (rs.getString("cif") == null) {
-                    /*
-                    Con el inner join podemos obtener un ResultSet más completo y mostrar así el objeto de School
-                    en la JTable
-                     */
-                    idProposal = rs.getInt("idproposal");
+                    idProject = rs.getInt("idproject");
                     title = rs.getString("title");
                     description = rs.getString("description");
-                    date = rs.getDate("startdate");
 
-                    idSchool = rs.getInt("id");
-                    entityName = rs.getString("entityname");
-                    city = rs.getString("city");
-                    phone = rs.getInt("phone");
-                    territorialId = rs.getString("territorialid");
+                    idUser = rs.getInt("iduser");
+                    userName = rs.getString("username");
+                    dni = rs.getString("dni");
+                    nss = rs.getString("nss");
+                    employeeId = rs.getString("employeeid");
 
-                    school = new School(idSchool, entityName, city, phone, territorialId);
-                    proposal = new Proposal(idProposal, title, description, date, school);
+                    employee = new Employee(idUser, userName, dni, nss, employeeId);
+                    project = new Project(idProject, title, description, employee);
 
-                    //this.addProposal(proposal);
-                } else {
-                    idProposal = rs.getInt("idproposal");
-                    title = rs.getString("title");
-                    description = rs.getString("description");
-                    date = rs.getDate("startdate");
-
-                    idCompany = rs.getInt("id");
-                    entityName = rs.getString("entityname");
-                    city = rs.getString("city");
-                    phone = rs.getInt("phone");
-                    cif = rs.getString("cif");
-
-                    company = new Company(idCompany, entityName, city, phone, cif);
-                    proposal = new Proposal(idProposal, title, description, date, company);
-
-                    //this.addProposal(proposal);
-                }
+                    this.addProject(project);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -160,14 +138,17 @@ public class ProjectDB {
     /**
      * Permite crear Proyectos
      * @param proposalTable JTable con propuestas
-     * @param proposalList Objeto de la clase ProposalDB con la lista de propuestas
      * @param title String con título de la propuesta
      * @param description String con la descripción de la propuesta
      * @throws IOException Excepción de entrada/salida
      */
-    public void createProject(JTable proposalTable, ProposalDB proposalList, String title, String description) throws CustomException, IOException {
+    public void createProject(JTable proposalTable, String title, String description, String idProposal) throws CustomException, IOException {
         // Panel con formulario y comboBox
-        ProjectDialog projectDialog = new ProjectDialog(title, description);
+        ProjectDialog projectDialog = new ProjectDialog(title, description, idProposal);
+
+        String sqlFirst = "INSERT INTO PROJECTS (idproject, title, description, creationdate, status) VALUES (?,?,?,?,?)";
+
+        String sqlSecond = "INSERT INTO USER_PROJECTS (iduser, idproject) VALUES (?,?)";
 
         // Almacena un entero, necesario para Diálogo de confirmación
         int resultado;
@@ -189,26 +170,31 @@ public class ProjectDB {
 
                 // No se puede utilizar un listener si utilizamos showxxxxDialog
                 if (resultado == 0) {
-                    // Si el resultado es 0, significa que el usuario ha hecho clic en OK.
-                    Project project = null; //new Project(projectDialog.getTxtTitle(), projectDialog.getTxtDescription(), projectDialog.getCbEmployee());
+                    // Primera consulta inserta en tabla Proyectos
+                    try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sqlFirst)) {
+                        stmt.setInt(1, InputOutput.stringToInt(idProposal));
+                        stmt.setString(2, title);
+                        stmt.setString(3, description);
+                        stmt.setString(4, InputOutput.todayDate());
+                        stmt.setString(5, "active");
 
-                    // Añadimos proyecto
-                    this.addProject(project);
+                        stmt.executeUpdate();
+                    }
+
+                    // Segunda consulta inserta en tabla intermedia
+                    try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sqlSecond)) {
+
+                        stmt.setInt(1, projectDialog.getCbEmployee().getIdUser());
+                        stmt.setInt(2, InputOutput.stringToInt(projectDialog.getTxtIdProposal()));
+
+                        stmt.executeUpdate();
+                    }
 
                     // Añadimos la entrada al log
-                    Log.capturarRegistro("PROJECT CREATE " + project.toString());
-
-                    // Añadimos la entrada, antes de eliminar la propuesta para obtener el valor de la fila seleccionada
-                    Log.capturarRegistro("PROPOSAL DELETE " + proposalList.getProposalFromDB(selectedRow));
-
-                    // Al crear proyecto, eliminamos la propuesta
-                    proposalList.removeProposal(selectedRow);
-
-                    // Refrescamos la tabla para eliminar la propuesta de ahí también
-                    this.showData(proposalTable);
+                    Log.capturarRegistro("PROJECT CREATE " + title + " | " + projectDialog.getCbEmployee().getName());
                 }
             }
-        } catch (CustomException ce) {
+        } catch (SQLException | CustomException ce) {
             InputOutput.printAlert(ce.getMessage());
 
             // Capturamos error para el registro
@@ -220,28 +206,15 @@ public class ProjectDB {
     /**
      * Muestra los datos actualizados en la tabla de proyectos
      */
-    public void showData(JTable proposalTable) throws IOException {
-        int resultado;
-
+    public void showData() throws IOException {
         // Implementa panel para visualizar proyectos
         ShowProjects showProjects = new ShowProjects();
 
-        // Creamos array de tipo string e inicializamos con el tamaño del ArrayList
-        String[][] tabla = new String[this.sizeProjectDB()][5];
-
-        // Recorre la lista de Proyectos
-        for(int i = 0; i < this.sizeProjectDB(); i++) {
-            // Datos de cada Proyecto
-            tabla[i][0] = this.getProjectFromDB(i).getName();
-            tabla[i][1] = this.getProjectFromDB(i).getDescription();
-            tabla[i][2] = this.getProjectFromDB(i).getManager().getName();
-        }
-
         // Añade los datos al modelo
         showProjects.getProjectTable().setModel(new CustomTableModel(
-                tabla,
+                this.listProjectsObject(),
                 new String [] {
-                        "Título", "Descripción", "Manager"
+                        "ID", "Título", "Descripción", "Manager"
                 }
         ));
 

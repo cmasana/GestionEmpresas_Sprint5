@@ -16,7 +16,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.metal.MetalButtonUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -81,11 +80,10 @@ public class ProposalContent extends ContentWindow {
     private void putForm() throws IOException {
         JPanel form = new JPanel();
         form.setBackground(DYE.getSECONDARY());
-        form.setLayout(new GridLayout(5, 1));
-        form.setBorder(new EmptyBorder(15, 50, 15, 100)); // Top, left, bottom, right
+        form.setLayout(new GridLayout(4, 1));
+        form.setBorder(new EmptyBorder(20, 50, 20, 100)); // Top, left, bottom, right
 
         rowId = new RowForm("ID", false);
-        form.add(rowId);
 
         rowTitle = new RowForm("Título", true);
         form.add(rowTitle);
@@ -213,15 +211,27 @@ public class ProposalContent extends ContentWindow {
         // Crea un espacio en blanco de separación
         mButtonsProposal.add(Box.createRigidArea(new Dimension(0, 40)));
 
-        // Botón vaciar lista
-        ImageButton btnEmpty = new ImageButton("img/empty.png", "CREAR PROYECTO");
-        btnEmpty.setPreferredSize(new Dimension(150, 40));
-        btnEmpty.setMaximumSize(new Dimension(150, 40));
-        btnEmpty.addActionListener(new ActionListener() {
+        // Botón crear proyecto
+        ImageButton btnCreateProject = new ImageButton("img/empty.png", "CREAR PROYECTO");
+        btnCreateProject.setPreferredSize(new Dimension(150, 40));
+        btnCreateProject.setMaximumSize(new Dimension(150, 40));
+        btnCreateProject.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    PROJECTDB.createProject(proposalTable, PROPOSALDB, rowTitle.getTxtInput().getText(), rowDescription.getTxtInput().getText());
+                    PROJECTDB.createProject(
+                            proposalTable,
+                            rowTitle.getTxtInput().getText(),
+                            rowDescription.getTxtInput().getText(),
+                            rowId.getTxtInput().getText()
+                    );
+
+                    PROPOSALDB.toProject(
+                            proposalTable,
+                            rowId.getTxtInput().getText()
+                    );
+
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (CustomException ce) {
@@ -229,7 +239,7 @@ public class ProposalContent extends ContentWindow {
                 }
             }
         });
-        mButtonsProposal.add(btnEmpty);
+        mButtonsProposal.add(btnCreateProject);
 
         // Crea un espacio en blanco de separación
         mButtonsProposal.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -242,7 +252,7 @@ public class ProposalContent extends ContentWindow {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    PROJECTDB.showData(proposalTable);
+                    PROJECTDB.showData();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
