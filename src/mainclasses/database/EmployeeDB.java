@@ -24,7 +24,8 @@ import java.util.ArrayList;
 
 /**
  * Grupo Individual Sprint 3 2021 - Carlos Masana
- * Clase EmployeeDB: Simula una base de datos con usuarios de tipo Empleado
+ * Clase EmployeeDB: Contiene todos los métodos que permiten realizar operaciones en la bbdd y que hacen referencia
+ * a la gestión de empleados
  */
 public class EmployeeDB {
     // ArrayList que simula la base de datos de Empleados
@@ -39,6 +40,7 @@ public class EmployeeDB {
 
     /**
      * Añadir empleado al array list
+     *
      * @param emp Objeto de la clase empleado
      */
     public void addEmployee(Employee emp) {
@@ -47,6 +49,7 @@ public class EmployeeDB {
 
     /**
      * Elimina un empleado del ArrayList
+     *
      * @param posicion posición del empleado dentro del ArrayList
      */
     public void removeEmployee(int posicion) {
@@ -55,6 +58,7 @@ public class EmployeeDB {
 
     /**
      * Obtiene un empleado desde el ArrayList
+     *
      * @param posicion posición del empleado dentro del ArrayList
      * @return devuelve un objeto de la clase Empleado
      */
@@ -64,6 +68,7 @@ public class EmployeeDB {
 
     /**
      * Obtiene el tamaño del ArrayList de Empleados
+     *
      * @return devuelve un entero con el tamaño del ArrayList de tipo Empleado
      */
     public int sizeEmployeeDB() {
@@ -82,12 +87,13 @@ public class EmployeeDB {
     /**
      * Permite transformar un arraylist en un array 2d de Strings
      * (es necesario para cargar los datos del arraylist en el JTable)
+     *
      * @return devuelve un array de Strings
      */
     public String[][] listEmployeesObject() {
         String[][] array = new String[sizeEmployeeDB()][5];
 
-        for (int i = 0; i < sizeEmployeeDB(); i ++) {
+        for (int i = 0; i < sizeEmployeeDB(); i++) {
             array[i][0] = String.valueOf(getEmployeeFromDB(i).getIdUser());
             array[i][1] = getEmployeeFromDB(i).getName();
             array[i][2] = getEmployeeFromDB(i).getDni();
@@ -103,10 +109,10 @@ public class EmployeeDB {
      */
     private void getUsersTable() {
         String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS WHERE status = 'active' " +
-                     "ORDER BY username ASC";
+                "ORDER BY username ASC";
 
         // Try-with-resources Statement: Se realiza el close() automaticamente
-        try(Statement stmt = DatabaseConnection.getConnection().createStatement()) {
+        try (Statement stmt = DatabaseConnection.getConnection().createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
@@ -137,7 +143,7 @@ public class EmployeeDB {
         String sql = "INSERT INTO USERS (username, dni, nss, employeeid, creationdate, updateddate, status) VALUES (?,?,?,?,?,?,?)";
 
         // Try-with-resources: No hace falta hacer close() del statement
-        try(PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
             // Si hay algún campo vacío
             if (name.isEmpty() || dni.isEmpty() || nss.isEmpty() || employeeId.isEmpty()) {
                 throw new CustomException(1111);
@@ -181,15 +187,15 @@ public class EmployeeDB {
     /**
      * Permite importar una lista de usuarios en formato CSV
      *
-     * @param userTable  tabla dónde visualizamos los empleados creados
-     * @param file archivo csv que contiene los datos de usuarios de tipo empleado
+     * @param userTable tabla dónde visualizamos los empleados creados
+     * @param file      archivo csv que contiene los datos de usuarios de tipo empleado
      */
     public void importUsers(JTable userTable, File file) {
         String sql = "INSERT INTO USERS (username, dni, nss, employeeid, creationdate, updateddate, status) VALUES (?,?,?,?,?,?,?)";
         int batchSize = 20; // Paquete de filas que se importarán a la vez (mayor rendimiento)
 
         // Try-with-resources: No hace falta hacer close() del statement
-        try(PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line = null;
             String name, dni, nss, employeeId;
@@ -218,7 +224,7 @@ public class EmployeeDB {
                 // Añadimos la entrada al log
                 Log.capturarRegistro("EMPLOYEE CREATE " + name + " " + dni + " " + nss + " " + employeeId);
 
-                if (count % batchSize == 0){
+                if (count % batchSize == 0) {
                     stmt.executeBatch();
                 }
             }
@@ -237,6 +243,7 @@ public class EmployeeDB {
 
     /**
      * Cambia a estado inactivo a un usuario (softDelete)
+     *
      * @param userTable  tabla dónde se visualizan los empleados
      * @param idUser     id del usuario en la bbdd
      * @param name       nombre del empleado
@@ -248,7 +255,7 @@ public class EmployeeDB {
         String sql = "UPDATE USERS SET status = ?, updateddate = ? WHERE iduser = ?";
         int resultado;
 
-        try(PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 
             // Almacenamos el nº total de filas que hay en la tabla
             int totalRows = userTable.getRowCount();
@@ -269,36 +276,29 @@ public class EmployeeDB {
                         if (name.isEmpty() || dni.isEmpty() || nss.isEmpty() || employeeId.isEmpty()) {
                             throw new CustomException(1111);
                         } else {
-                            if (!ValidadorDNI.validar(dni)) {
-                                throw new CustomException(1112);
+                            resultado = InputOutput.deleteConfirmation();
 
-                            } else if (!ValidadorNSS.validar(nss)) {
-                                throw new CustomException(1113);
+                            // Si el resultado es igual a 0, eliminamos el empleado
+                            if (resultado == 0) {
+                                stmt.setString(1, "inactive");
+                                stmt.setString(2, InputOutput.todayDate());
 
-                            } else {
-                                resultado = InputOutput.deleteConfirmation();
+                                stmt.setInt(3, InputOutput.stringToInt(idUser));
 
-                                // Si el resultado es igual a 0, eliminamos el empleado
-                                if (resultado == 0) {
-                                    stmt.setString(1, "inactive");
-                                    stmt.setString(2, InputOutput.todayDate());
+                                stmt.executeUpdate();
+                                stmt.close();
 
-                                    stmt.setInt(3, InputOutput.stringToInt(idUser));
+                                // Añadimos la entrada al log
+                                Log.capturarRegistro("EMPLOYEE DELETE " + name + " " + dni + " "
+                                        + nss + "  " + employeeId);
 
-                                    stmt.executeUpdate();
-                                    stmt.close();
-
-                                    // Añadimos la entrada al log
-                                    Log.capturarRegistro("EMPLOYEE DELETE " + name + " " + dni + " "
-                                            + nss + "  " + employeeId);
-
-                                    // Actualizamos datos de la tabla
-                                    showData(userTable);
-                                }
+                                // Actualizamos datos de la tabla
+                                showData(userTable);
                             }
                         }
                     }
                 }
+
             } catch (CustomException ce) {
                 InputOutput.printAlert(ce.getMessage());
 
@@ -314,7 +314,8 @@ public class EmployeeDB {
 
     /**
      * Permite modificar un empleado
-     *  @param userTable  tabla dónde se visualizan los empleados
+     *
+     * @param userTable  tabla dónde se visualizan los empleados
      * @param idUser     id del usuario en la bbdd
      * @param name       nombre del empleado
      * @param dni        dni del empleado
@@ -325,7 +326,7 @@ public class EmployeeDB {
         String sql = "UPDATE USERS SET username = ?, dni = ?, nss = ?, employeeid = ?, updateddate = ? WHERE iduser = ?";
         int resultado;
 
-        try(PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 
             // Almacenamos el nº total de filas que hay en la tabla
             int totalRows = userTable.getRowCount();
@@ -398,7 +399,7 @@ public class EmployeeDB {
      * @param userTable tabla dónde se visualizan los empleados creados
      */
     public void showData(JTable userTable) {
-        String [] colIdentifiers = {"ID","Nombre", "DNI", "NSS", "Cod. Empleado"};
+        String[] colIdentifiers = {"ID", "Nombre", "DNI", "NSS", "Cod. Empleado"};
 
         EmployeeDB employees = new EmployeeDB();
 
@@ -414,8 +415,9 @@ public class EmployeeDB {
 
     /**
      * Permite eliminar un usuario DEPRECATED
-     * @deprecated
+     *
      * @param userTable tabla dónde se visualizan los empleados
+     * @deprecated
      */
     public void deleteUser(JTable userTable) {
         EmployeeDB employeeList = new EmployeeDB();
