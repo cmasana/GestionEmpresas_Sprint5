@@ -11,7 +11,8 @@ import java.util.ArrayList;
 
 /**
  * Grupo Individual Sprint 3 2021 - Carlos Masana
- * Clase EntityDB: Simula una base de datos con objetos de tipo Entidad
+ * Clase EntityDB: Contiene todos los métodos que permiten realizar operaciones en la bbdd y que hacen referencia
+ *  * a la gestión de entidades
  */
 public class EntityDB {
 

@@ -9,10 +9,7 @@ import custom_ui.tables.CustomTableConfig;
 import custom_ui.tables.CustomTableModel;
 import gui.dialogs.ProjectDialog;
 import gui.dialogs.ShowProjects;
-import mainclasses.entity.Company;
-import mainclasses.entity.School;
 import mainclasses.proposal.Project;
-import mainclasses.proposal.Proposal;
 import mainclasses.user.Employee;
 
 import javax.swing.*;
@@ -22,11 +19,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Grupo Individual Sprint 3 2021 - Carlos Masana
- * Clase ProjectDB: Simula una base de datos con los proyectos
+ * Clase ProjectDB: Contiene todos los métodos que permiten realizar operaciones en la bbdd y que hacen referencia
+ *  * a la gestión de proyectos
  */
 public class ProjectDB {
     // ArrayList que simula la base de datos

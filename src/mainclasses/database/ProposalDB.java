@@ -23,7 +23,8 @@ import java.util.Date;
 
 /**
  * Grupo Individual Sprint 3 2021 - Carlos Masana
- * Clase ProposalDB: Simula una base de datos con las propuestas
+ * Clase ProposalDB: Contiene todos los métodos que permiten realizar operaciones en la bbdd y que hacen referencia
+ *  * a la gestión de propuestas
  */
 public class ProposalDB {
     // ArrayList que simula la base de datos
