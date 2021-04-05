@@ -108,8 +108,9 @@ public class EmployeeDB {
      * Permite cargar un ResultSet con los datos de la bbdd en el arraylist de esta clase
      */
     private void getUsersTable() {
-        String sql = "SELECT iduser, username, dni, nss, employeeid FROM USERS WHERE status = 'active' " +
-                "ORDER BY username ASC";
+        String sql = "SELECT iduser, username, dni, nss, employeeid " +
+                     "FROM users WHERE status = 'active' " +
+                     "ORDER BY username ASC";
 
         // Try-with-resources Statement: Se realiza el close() automaticamente
         try (Statement stmt = DatabaseConnection.getConnection().createStatement()) {
@@ -140,7 +141,8 @@ public class EmployeeDB {
      * @param employeeId codigo del empleado
      */
     public void createUser(JTable userTable, String name, String dni, String nss, String employeeId) {
-        String sql = "INSERT INTO USERS (username, dni, nss, employeeid, creationdate, updateddate, status) VALUES (?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO users (username, dni, nss, employeeid, creationdate, updated_at, status) " +
+                     "VALUES (?,?,?,?,?,?,?)";
 
         // Try-with-resources: No hace falta hacer close() del statement
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
@@ -156,24 +158,21 @@ public class EmployeeDB {
                     throw new CustomException(1113);
 
                 } else {
-
                     stmt.setString(1, name);
                     stmt.setString(2, dni);
                     stmt.setString(3, nss);
                     stmt.setString(4, employeeId);
-                    stmt.setString(5, InputOutput.todayDate()); // Fecha de hoy con formato sql
-                    stmt.setString(6, InputOutput.todayDate());
+                    stmt.setString(5, InputOutput.todayDate()); // Creation Date
+                    stmt.setString(6, InputOutput.todayDate()); // Updated Date
                     stmt.setString(7, "active");
 
-
                     stmt.executeUpdate();
-                    //stmt.close();
 
                     // Añadimos la entrada al log
                     Log.capturarRegistro("EMPLOYEE CREATE " + name + " " + dni + " " + nss + " " + employeeId);
 
                     // Actualizamos los datos en la tabla
-                    showData(userTable);
+                    this.showData(userTable);
                 }
             }
         } catch (CustomException | SQLException ce) {
@@ -191,8 +190,10 @@ public class EmployeeDB {
      * @param file      archivo csv que contiene los datos de usuarios de tipo empleado
      */
     public void importUsers(JTable userTable, File file) {
-        String sql = "INSERT INTO USERS (username, dni, nss, employeeid, creationdate, updateddate, status) VALUES (?,?,?,?,?,?,?)";
-        int batchSize = 20; // Paquete de filas que se importarán a la vez (mayor rendimiento)
+        String sql = "INSERT INTO users (username, dni, nss, employeeid, creationdate, updated_at, status) " +
+                     "VALUES (?,?,?,?,?,?,?)";
+
+        int batchSize = 20; // Paquete de filas que se importarán a la vez (mejor rendimiento)
 
         // Try-with-resources: No hace falta hacer close() del statement
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
@@ -233,7 +234,7 @@ public class EmployeeDB {
             stmt.executeBatch();
 
             // Actualizamos los datos en la tabla
-            showData(userTable);
+            this.showData(userTable);
 
         } catch (SQLException | IOException ce) {
             ce.printStackTrace();
@@ -252,7 +253,7 @@ public class EmployeeDB {
      * @param employeeId codigo del empleado
      */
     public void softDeleteUser(JTable userTable, String idUser, String name, String dni, String nss, String employeeId) {
-        String sql = "UPDATE USERS SET status = ?, updateddate = ? WHERE iduser = ?";
+        String sql = "UPDATE users SET status = ?, updated_at = ? WHERE iduser = ?";
         int resultado;
 
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
@@ -286,27 +287,23 @@ public class EmployeeDB {
                                 stmt.setInt(3, InputOutput.stringToInt(idUser));
 
                                 stmt.executeUpdate();
-                                stmt.close();
 
                                 // Añadimos la entrada al log
                                 Log.capturarRegistro("EMPLOYEE DELETE " + name + " " + dni + " "
                                         + nss + "  " + employeeId);
 
                                 // Actualizamos datos de la tabla
-                                showData(userTable);
+                                this.showData(userTable);
                             }
                         }
                     }
                 }
-
             } catch (CustomException ce) {
                 InputOutput.printAlert(ce.getMessage());
 
                 // Capturamos error para el registro
                 auxiliar.Error.capturarError("EMPLOYEE " + ce.getMessage());
             }
-
-
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -323,7 +320,7 @@ public class EmployeeDB {
      * @param employeeId codigo del empleado
      */
     public void editUser(JTable userTable, String idUser, String name, String dni, String nss, String employeeId) {
-        String sql = "UPDATE USERS SET username = ?, dni = ?, nss = ?, employeeid = ?, updateddate = ? WHERE iduser = ?";
+        String sql = "UPDATE users SET username = ?, dni = ?, nss = ?, employeeid = ?, updated_at = ? WHERE iduser = ?";
         int resultado;
 
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
@@ -386,8 +383,6 @@ public class EmployeeDB {
                 // Capturamos error para el registro
                 auxiliar.Error.capturarError("EMPLOYEE " + ce.getMessage());
             }
-
-
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -399,6 +394,7 @@ public class EmployeeDB {
      * @param userTable tabla dónde se visualizan los empleados creados
      */
     public void showData(JTable userTable) {
+        // Encabezados de la tabla
         String[] colIdentifiers = {"ID", "Nombre", "DNI", "NSS", "Cod. Empleado"};
 
         EmployeeDB employees = new EmployeeDB();

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 /**
  * Grupo Individual Sprint 3 2021 - Carlos Masana
  * Clase ProjectDB: Contiene todos los métodos que permiten realizar operaciones en la bbdd y que hacen referencia
- *  * a la gestión de proyectos
+ * a la gestión de proyectos
  */
 public class ProjectDB {
     // ArrayList que simula la base de datos
@@ -93,11 +93,11 @@ public class ProjectDB {
      */
     private void getProjectsTable() {
         String sql = "SELECT p.idproject, p.title, p.description, u.iduser, u.username, u.dni, u.nss, u.employeeid " +
-                     "FROM PROJECTS AS p " +
-                     "INNER JOIN USER_PROJECTS AS up " +
-                        "ON p.idproject = up.idproject " +
-                     "INNER JOIN USERS AS u " +
-                        "ON up.iduser = u.iduser " +
+                     "FROM projects AS p " +
+                     "INNER JOIN user_projects AS up " +
+                     "ON p.idproject = up.idproject " +
+                     "INNER JOIN users AS u " +
+                     "ON up.iduser = u.iduser " +
                      "WHERE p.status = 'active' " +
                      "ORDER BY p.idproject ASC";
 
@@ -143,9 +143,8 @@ public class ProjectDB {
         // Panel con formulario y comboBox
         ProjectDialog projectDialog = new ProjectDialog(title, description, idProposal);
 
-        String sqlFirst = "INSERT INTO PROJECTS (idproject, title, description, creationdate, status) VALUES (?,?,?,?,?)";
-
-        String sqlSecond = "INSERT INTO USER_PROJECTS (iduser, idproject) VALUES (?,?)";
+        String sqlFirst = "INSERT INTO projects (idproject, title, description, creationdate, updated_at, status) VALUES (?,?,?,?,?,?)";
+        String sqlSecond = "INSERT INTO user_projects (iduser, idproject) VALUES (?,?)";
 
         // Almacena un entero, necesario para Diálogo de confirmación
         int resultado;
@@ -165,7 +164,7 @@ public class ProjectDB {
                 // Mostramos diálogo de confirmación
                 resultado = JOptionPane.showConfirmDialog(null, projectDialog, "CREAR PROYECTO", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-                // No se puede utilizar un listener si utilizamos showxxxxDialog
+                // No se puede utilizar un listener si utilizamos show****Dialog
                 if (resultado == 0) {
                     // Primera consulta inserta en tabla Proyectos
                     try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sqlFirst)) {
@@ -173,14 +172,14 @@ public class ProjectDB {
                         stmt.setString(2, title);
                         stmt.setString(3, description);
                         stmt.setString(4, InputOutput.todayDate());
-                        stmt.setString(5, "active");
+                        stmt.setString(5, InputOutput.todayDate());
+                        stmt.setString(6, "active");
 
                         stmt.executeUpdate();
                     }
 
                     // Segunda consulta inserta en tabla intermedia
                     try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sqlSecond)) {
-
                         stmt.setInt(1, projectDialog.getCbEmployee().getIdUser());
                         stmt.setInt(2, InputOutput.stringToInt(projectDialog.getTxtIdProposal()));
 
@@ -204,17 +203,19 @@ public class ProjectDB {
      * Muestra los datos actualizados en la tabla de proyectos
      */
     public void showData() throws IOException {
+        // Encabezados de la tabla
+        String[] colIdentifiers = {"ID", "Título", "Descripción", "Manager"};
+
         // Implementa panel para visualizar proyectos
         ShowProjects showProjects = new ShowProjects();
 
+        // Instanceamos objeto para refrescar datos
         ProjectDB projects = new ProjectDB();
 
         // Añade los datos al modelo
         showProjects.getProjectTable().setModel(new CustomTableModel(
                 projects.listProjectsObject(),
-                new String [] {
-                        "ID", "Título", "Descripción", "Manager"
-                }
+                colIdentifiers
         ));
 
         // Diseño de la tabla

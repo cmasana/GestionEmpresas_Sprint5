@@ -24,10 +24,10 @@ import java.util.Date;
 /**
  * Grupo Individual Sprint 3 2021 - Carlos Masana
  * Clase ProposalDB: Contiene todos los métodos que permiten realizar operaciones en la bbdd y que hacen referencia
- *  * a la gestión de propuestas
+ * a la gestión de propuestas
  */
 public class ProposalDB {
-    // ArrayList que simula la base de datos
+    // Aquí se cargan los datos del ResultSet
     private final ArrayList<Proposal> PROPOSALS = new ArrayList<Proposal>();
 
     // Constructor vacío
@@ -49,6 +49,7 @@ public class ProposalDB {
 
     /**
      * Elimina una propuesta del ArrayList
+     * @param idProposal ID de la propuesta en la bbdd
      */
     public void removeProposal(int idProposal) {
         Proposal proposal = null;
@@ -104,10 +105,11 @@ public class ProposalDB {
      */
     private void getProposalsTable() {
         String sql = "SELECT p.idproposal, p.title, p.description, p.startdate, e.id, e.entityname, e.city, e.phone, e.cif, e.territorialid " +
-                "FROM PROPOSALS AS p " + "INNER JOIN ENTITIES AS e " +
-                "ON p.identity = e.id " +
-                "WHERE status = 'active'" +
-                "ORDER BY p.startdate ASC";
+                     "FROM proposals AS p " +
+                     "INNER JOIN entities AS e " +
+                     "ON p.identity = e.id " +
+                     "WHERE status = 'active'" +
+                     "ORDER BY p.startdate ASC";
 
         String title, description, entityName, city, territorialId, cif;
         int idProposal, phone, idSchool, idCompany;
@@ -168,7 +170,8 @@ public class ProposalDB {
      * @param entity        entidad de la propuesta
      */
     public void createProposal(JTable proposalTable, String title, String description, String startDate, int entity) {
-        String sql = "INSERT INTO PROPOSALS (title, description, startdate, creationdate, status, identity) VALUES (?,?,?,?,?,?)";
+        String sql = "INSERT INTO proposals (title, description, startdate, creationdate, updated_at, status, identity) " +
+                     "VALUES (?,?,?,?,?,?,?)";
 
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
             // Si hay algún campo vacío
@@ -184,10 +187,10 @@ public class ProposalDB {
                     stmt.setString(1, title);
                     stmt.setString(2, description);
                     stmt.setString(3, startDate);
-
                     stmt.setString(4, InputOutput.todayDate());
-                    stmt.setString(5, "active");
-                    stmt.setObject(6, entity);
+                    stmt.setString(5, InputOutput.todayDate());
+                    stmt.setString(6, "active");
+                    stmt.setObject(7, entity);
 
                     stmt.executeUpdate();
 
@@ -227,7 +230,7 @@ public class ProposalDB {
      * @param indexEntity   indice del objeto del JCombobox
      */
     public void editProposal(JTable proposalTable, String title, String description, String startDate, int indexEntity, String idProposal) {
-        String sql = "UPDATE PROPOSALS SET title = ?, description = ?, startDate = ?, creationdate = ?, identity = ? WHERE idproposal = ?";
+        String sql = "UPDATE proposals SET title = ?, description = ?, startDate = ?, updated_at = ?, identity = ? WHERE idproposal = ?";
         int resultado;
 
         try {
@@ -307,7 +310,7 @@ public class ProposalDB {
      * @param idProposal    id de la propuesta
      */
     public void softDeleteProposal(JTable proposalTable, String title, String description, String startDate, int indexEntity, String idProposal) {
-        String sql = "UPDATE PROPOSALS SET status = ? WHERE idproposal = ?";
+        String sql = "UPDATE proposals SET updated_at = ?, status = ? WHERE idproposal = ?";
         int resultado;
 
         try {
@@ -336,9 +339,10 @@ public class ProposalDB {
                 if (InputOutput.ifOk(resultado)) {
                     try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 
-                        stmt.setString(1, "inactive");
+                        stmt.setString(1, InputOutput.todayDate());
+                        stmt.setString(2, "inactive");
 
-                        stmt.setInt(2, InputOutput.stringToInt(idProposal));
+                        stmt.setInt(3, InputOutput.stringToInt(idProposal));
 
                         stmt.executeUpdate();
                         //stmt.close(); // No hace falta con el try-with-resources
@@ -375,13 +379,13 @@ public class ProposalDB {
      * @param idProposal    id de la propuesta
      */
     public void toProject(JTable proposalTable, String idProposal) {
-        String sql = "UPDATE PROPOSALS SET status = ? WHERE idproposal = ?";
+        String sql = "UPDATE proposals SET updated_at = ?, status = ? WHERE idproposal = ?";
 
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, InputOutput.todayDate());
+            stmt.setString(2, "in-progress");
 
-            stmt.setString(1, "in progress");
-
-            stmt.setInt(2, InputOutput.stringToInt(idProposal));
+            stmt.setInt(3, InputOutput.stringToInt(idProposal));
 
             stmt.executeUpdate();
 
@@ -390,7 +394,6 @@ public class ProposalDB {
 
             // Actualizamos datos de la tabla
             this.showData(proposalTable);
-
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -403,9 +406,10 @@ public class ProposalDB {
      * @param proposalTable tabla dónde se visualizan las propuestas creadas
      */
     public void showData(JTable proposalTable) {
+        // Encabezados de la tabla
         String[] colIdentifiers = {"ID", "Título", "Descripción", "Fecha de inicio", "Entidad"};
 
-        // Instanceamos de nuevo para refrescar datos ???
+        // Instanceamos de nuevo para refrescar datos (Sino no funciona)
         ProposalDB proposals = new ProposalDB();
 
         // Añade los datos al modelo

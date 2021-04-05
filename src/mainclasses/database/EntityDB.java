@@ -12,7 +12,7 @@ import java.util.ArrayList;
 /**
  * Grupo Individual Sprint 3 2021 - Carlos Masana
  * Clase EntityDB: Contiene todos los métodos que permiten realizar operaciones en la bbdd y que hacen referencia
- *  * a la gestión de entidades
+ * a la gestión de entidades
  */
 public class EntityDB {
 
@@ -72,7 +72,7 @@ public class EntityDB {
      * Permite cargar un ResultSet con los datos de la bbdd en el arraylist de esta clase
      */
     private void getEntitiesTable() {
-        String sql = "SELECT id, entityname, city, phone, cif, territorialid FROM ENTITIES";
+        String sql = "SELECT id, entityname, city, phone, cif, territorialid FROM entities";
 
         // Try-with-resources Statement: Se realiza el close() automaticamente
         try(Statement stmt = DatabaseConnection.getConnection().createStatement()) {
