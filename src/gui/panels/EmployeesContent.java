@@ -14,6 +14,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -31,6 +32,9 @@ public class EmployeesContent extends ContentWindow {
     private RowForm rowDni;
     private RowForm rowNss;
     private RowForm rowEmployeeId;
+
+    // Permite seleccionar archivos
+    private JFileChooser fileChooser;
 
     // Tabla
     private JTable userTable;
@@ -173,6 +177,30 @@ public class EmployeesContent extends ContentWindow {
             }
         });
         mButtonsEmployee.add(btnDelete);
+
+        // Crea un espacio en blanco de separación
+        mButtonsEmployee.add(Box.createRigidArea(new Dimension(0, 40)));
+
+        // Botón importar CSV empleados
+        ImageButton btnImportCsv = new ImageButton("img/upload.png", "IMPORTAR");
+        btnImportCsv.setPreferredSize(new Dimension(150, 40));
+        btnImportCsv.setMaximumSize(new Dimension(150, 40));
+        btnImportCsv.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fileChooser = new JFileChooser();
+
+                int returnVal = fileChooser.showOpenDialog(management);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+
+                    EMPLOYEEDB.importUsers(userTable, file);
+                }
+            }
+        });
+
+        mButtonsEmployee.add(btnImportCsv);
 
         mButtonsEmployee.setVisible(true);
 

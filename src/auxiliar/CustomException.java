@@ -18,6 +18,7 @@ public class CustomException extends Exception {
         put(1115, "Error: No hay ningún empleado creado");
         put(1116, "Error: No hay ninguna propuesta creada");
         put(1117, "Error: La fecha introducida es anterior a la actual");
+        put(1118, "Error: El archivo seleccionado no contiene datos");
     }};
 
 

@@ -12,6 +12,10 @@ import validations.ValidadorDNI;
 import validations.ValidadorNSS;
 
 import javax.swing.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -171,6 +175,62 @@ public class EmployeeDB {
 
             // Capturamos error para el registro
             auxiliar.Error.capturarError("EMPLOYEE " + ce.getMessage());
+        }
+    }
+
+    /**
+     * Permite importar una lista de usuarios en formato CSV
+     *
+     * @param userTable  tabla dónde visualizamos los empleados creados
+     * @param file archivo csv que contiene los datos de usuarios de tipo empleado
+     */
+    public void importUsers(JTable userTable, File file) {
+        String sql = "INSERT INTO USERS (username, dni, nss, employeeid, creationdate, updateddate, status) VALUES (?,?,?,?,?,?,?)";
+        int batchSize = 20; // Paquete de filas que se importarán a la vez (mayor rendimiento)
+
+        // Try-with-resources: No hace falta hacer close() del statement
+        try(PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line = null;
+            String name, dni, nss, employeeId;
+
+            int count = 0;
+
+            br.readLine(); // Saltar encabezados
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                name = data[0];
+                dni = data[1];
+                nss = data[2];
+                employeeId = data[3];
+
+                stmt.setString(1, name);
+                stmt.setString(2, dni);
+                stmt.setString(3, nss);
+                stmt.setString(4, employeeId);
+                stmt.setString(5, InputOutput.todayDate()); // Fecha de hoy con formato sql
+                stmt.setString(6, InputOutput.todayDate());
+                stmt.setString(7, "active");
+
+                stmt.addBatch();
+
+                // Añadimos la entrada al log
+                Log.capturarRegistro("EMPLOYEE CREATE " + name + " " + dni + " " + nss + " " + employeeId);
+
+                if (count % batchSize == 0){
+                    stmt.executeBatch();
+                }
+            }
+            br.close(); // Cerramos BufferedReader
+
+            stmt.executeBatch();
+
+            // Actualizamos los datos en la tabla
+            showData(userTable);
+
+        } catch (SQLException | IOException ce) {
+            ce.printStackTrace();
         }
     }
 
