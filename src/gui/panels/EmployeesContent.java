@@ -211,6 +211,7 @@ public class EmployeesContent extends ContentWindow {
      * Añade una tabla y su configuración a la interfaz
      */
     private void putUserListTable() throws IOException {
+        String[] colIdentifiers = {"ID","Nombre", "DNI", "NSS", "Cod. Empleado"};
         JPanel panelTable = new JPanel(new BorderLayout());
         panelTable.setBackground(DYE.getSECONDARY());
 
@@ -226,9 +227,7 @@ public class EmployeesContent extends ContentWindow {
         // Modelo por defecto de la tabla
         userTable.setModel(new CustomTableModel(
                 empdb.listEmployeesObject(),
-                new String [] {
-                        "ID","Nombre", "DNI", "NSS", "Cod. Empleado"
-                }
+                colIdentifiers
         ));
 
         // Diseño básico de la tabla
