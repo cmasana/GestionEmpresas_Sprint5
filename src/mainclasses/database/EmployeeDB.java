@@ -194,50 +194,63 @@ public class EmployeeDB {
                      "VALUES (?,?,?,?,?,?,?)";
 
         int batchSize = 20; // Paquete de filas que se importarán a la vez (mejor rendimiento)
-
+        
         // Try-with-resources: No hace falta hacer close() del statement
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line = null;
-            String name, dni, nss, employeeId;
+            try(BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String line = null;
+                String name, dni, nss, employeeId;
 
-            int count = 0;
+                int count = 0;
 
-            br.readLine(); // Saltar encabezados
+                br.readLine(); // Saltar encabezados
 
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
-                name = data[0];
-                dni = data[1];
-                nss = data[2];
-                employeeId = data[3];
+                while ((line = br.readLine()) != null) {
+                    String[] data = line.split(",");
+                    name = data[0];
+                    dni = data[1];
+                    nss = data[2];
+                    employeeId = data[3];
 
-                stmt.setString(1, name);
-                stmt.setString(2, dni);
-                stmt.setString(3, nss);
-                stmt.setString(4, employeeId);
-                stmt.setString(5, InputOutput.todayDate()); // Fecha de hoy con formato sql
-                stmt.setString(6, InputOutput.todayDate());
-                stmt.setString(7, "active");
+                    if (name.isEmpty() || dni.isEmpty() || nss.isEmpty() || employeeId.isEmpty()) {
+                        throw new CustomException(2111);
 
-                stmt.addBatch();
+                    } else if (!ValidadorDNI.validar(dni)) {
+                        throw new CustomException(2112);
 
-                // Añadimos la entrada al log
-                Log.capturarRegistro("EMPLOYEE CREATE " + name + " " + dni + " " + nss + " " + employeeId);
+                    } else if (!ValidadorNSS.validar(nss)) {
+                        throw new CustomException(2113);
 
-                if (count % batchSize == 0) {
+                    } else {
+                        stmt.setString(1, name);
+                        stmt.setString(2, dni);
+                        stmt.setString(3, nss);
+                        stmt.setString(4, employeeId);
+                        stmt.setString(5, InputOutput.todayDate()); // Fecha de hoy con formato sql
+                        stmt.setString(6, InputOutput.todayDate());
+                        stmt.setString(7, "active");
+
+                        stmt.addBatch();
+
+                        // Añadimos la entrada al log
+                        Log.capturarRegistro("EMPLOYEE CREATE " + name + " " + dni + " " + nss + " " + employeeId);
+
+                        if (count % batchSize == 0) {
+                            stmt.executeBatch();
+                        }
+                    }
+
                     stmt.executeBatch();
+
+                    // Actualizamos los datos en la tabla
+                    this.showData(userTable);
                 }
             }
-            br.close(); // Cerramos BufferedReader
+        } catch (CustomException | SQLException | IOException ce) {
+            InputOutput.printAlert(ce.getMessage());
 
-            stmt.executeBatch();
-
-            // Actualizamos los datos en la tabla
-            this.showData(userTable);
-
-        } catch (SQLException | IOException ce) {
-            ce.printStackTrace();
+            // Capturamos error para el registro
+            auxiliar.Error.capturarError("EMPLOYEE IMPORT " + ce.getMessage());
         }
     }
 
