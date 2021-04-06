@@ -20,6 +20,9 @@ public class CustomException extends Exception {
         put(1117, "Error: La fecha introducida es anterior a la actual");
         put(1118, "Error: El archivo seleccionado no contiene datos");
         put(1119, "Error: La fecha introducida es incorrecta");
+        put(2111, "Error Importación: Hay registros con campos vacíos en el archivo CSV");
+        put(2112, "Error Importación: DNI incorrecto en archivo CSV");
+        put(2113, "Error Importación: NSS incorrecto en archivo CSV");
     }};
 
 
