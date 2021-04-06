@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -189,6 +190,18 @@ public class EmployeesContent extends ContentWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new File("."));
+                fileChooser.addChoosableFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        return f.isFile() && f.getName().toLowerCase().endsWith(".csv");
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "*.csv";
+                    }
+                });
 
                 int returnVal = fileChooser.showOpenDialog(management);
 
