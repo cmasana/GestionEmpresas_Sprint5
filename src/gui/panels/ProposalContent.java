@@ -220,6 +220,7 @@ public class ProposalContent extends ContentWindow {
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
                     PROJECTDB.createProject(
+                            PROPOSALDB,
                             proposalTable,
                             rowTitle.getTxtInput().getText(),
                             rowDescription.getTxtInput().getText(),

@@ -49,6 +49,7 @@ public class ProposalDB {
 
     /**
      * Elimina una propuesta del ArrayList
+     *
      * @param idProposal ID de la propuesta en la bbdd
      */
     public void removeProposal(int idProposal) {
@@ -105,11 +106,11 @@ public class ProposalDB {
      */
     private void getProposalsTable() {
         String sql = "SELECT p.idproposal, p.title, p.description, p.startdate, e.id, e.entityname, e.city, e.phone, e.cif, e.territorialid " +
-                     "FROM proposals AS p " +
-                     "INNER JOIN entities AS e " +
-                     "ON p.identity = e.id " +
-                     "WHERE status = 'active'" +
-                     "ORDER BY p.startdate ASC";
+                "FROM proposals AS p " +
+                "INNER JOIN entities AS e " +
+                "ON p.identity = e.id " +
+                "WHERE status = 'active'" +
+                "ORDER BY p.startdate ASC";
 
         String title, description, entityName, city, territorialId, cif;
         int idProposal, phone, idSchool, idCompany;
@@ -171,7 +172,7 @@ public class ProposalDB {
      */
     public void createProposal(JTable proposalTable, String title, String description, String startDate, int entity) {
         String sql = "INSERT INTO proposals (title, description, startdate, creationdate, updated_at, status, identity) " +
-                     "VALUES (?,?,?,?,?,?,?)";
+                "VALUES (?,?,?,?,?,?,?)";
 
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
             // Si hay algún campo vacío
@@ -237,7 +238,7 @@ public class ProposalDB {
         Date creationDate = null;
 
 
-        try(PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sqlGetDate)) {
+        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sqlGetDate)) {
             stmt.setString(1, idProposal);
 
             ResultSet rs = stmt.executeQuery();
@@ -388,24 +389,32 @@ public class ProposalDB {
      * @param idProposal    id de la propuesta
      */
     public void toProject(JTable proposalTable, String idProposal) {
+        // Almacena el nº de fila seleccionado
+        int selectedRow = proposalTable.getSelectedRow();
+
         String sql = "UPDATE proposals SET updated_at = ?, status = ? WHERE idproposal = ?";
 
-        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, InputOutput.todayDate());
-            stmt.setString(2, "in-progress");
+        if (selectedRow >= 0) {
+            try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+                stmt.setString(1, InputOutput.todayDate());
+                stmt.setString(2, "in-progress");
 
-            stmt.setInt(3, InputOutput.stringToInt(idProposal));
+                stmt.setInt(3, InputOutput.stringToInt(idProposal));
 
-            stmt.executeUpdate();
+                stmt.executeUpdate();
 
-            // Eliminamos elemento del ArrayList
-            this.removeProposal(InputOutput.stringToInt(idProposal));
+                // Eliminamos elemento del ArrayList
+                this.removeProposal(InputOutput.stringToInt(idProposal));
 
-            // Actualizamos datos de la tabla
-            this.showData(proposalTable);
+                // Actualizamos datos de la tabla
+                this.showData(proposalTable);
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+            } catch (SQLException ce) {
+                InputOutput.printAlert(ce.getMessage());
+
+                // Capturamos error para el registro
+                Error.capturarError("PROJECT CREATE " + ce.getMessage());
+            }
         }
     }
 

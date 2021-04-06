@@ -139,7 +139,7 @@ public class ProjectDB {
      * @param description String con la descripción de la propuesta
      * @throws IOException Excepción de entrada/salida
      */
-    public void createProject(JTable proposalTable, String title, String description, String idProposal) throws CustomException, IOException {
+    public void createProject(ProposalDB propDB, JTable proposalTable, String title, String description, String idProposal) throws CustomException, IOException {
         // Panel con formulario y comboBox
         ProjectDialog projectDialog = new ProjectDialog(title, description, idProposal);
 
@@ -188,6 +188,9 @@ public class ProjectDB {
 
                     // Añadimos la entrada al log
                     Log.capturarRegistro("PROJECT CREATE " + title + " | " + projectDialog.getCbEmployee().getName());
+
+                    // Transformamos propuesta a proyecto
+                    propDB.toProject(proposalTable, idProposal);
                 }
             }
         } catch (SQLException | CustomException ce) {
