@@ -83,20 +83,20 @@ public class InputOutput {
      * @return devuelve TRUE si la fecha es anterior o FALSE si es posterior o igual
      */
     public static boolean wrongEditedDate(String modificada, Date original) {
-        boolean isWrong = true;
+        boolean after = true;
         try {
             Date dModificada = stringToDate(modificada);
 
             // Si es menor que 0 se trata de una fecha anterior
             if (dModificada.compareTo(original) >= 0) {
-                isWrong = false;
+                after = false;
             }
 
         } catch (ParseException pe) {
             pe.printStackTrace();
         }
 
-        return isWrong;
+        return after;
     }
 
     /**
