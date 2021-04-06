@@ -19,6 +19,7 @@ public class CustomException extends Exception {
         put(1116, "Error: No hay ninguna propuesta creada");
         put(1117, "Error: La fecha introducida es anterior a la actual");
         put(1118, "Error: El archivo seleccionado no contiene datos");
+        put(1119, "Error: La fecha introducida es incorrecta");
     }};
 
 

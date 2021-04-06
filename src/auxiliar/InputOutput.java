@@ -77,6 +77,29 @@ public class InputOutput {
     }
 
     /**
+     * Permite averiguar si la fecha introducida es correcta o no
+     * @param modificada Date que queremos comprobar con la fecha modificada
+     * @param original Date fecha original
+     * @return devuelve TRUE si la fecha es anterior o FALSE si es posterior o igual
+     */
+    public static boolean wrongEditedDate(String modificada, Date original) {
+        boolean isWrong = true;
+        try {
+            Date dModificada = stringToDate(modificada);
+
+            // Si es menor que 0 se trata de una fecha anterior
+            if (dModificada.compareTo(original) >= 0) {
+                isWrong = false;
+            }
+
+        } catch (ParseException pe) {
+            pe.printStackTrace();
+        }
+
+        return isWrong;
+    }
+
+    /**
      * Muestra la fecha actual en formato String
      * @return devuelve un String con la fecha actual
      */

@@ -231,9 +231,20 @@ public class ProposalDB {
      */
     public void editProposal(JTable proposalTable, String title, String description, String startDate, int indexEntity, String idProposal) {
         String sql = "UPDATE proposals SET title = ?, description = ?, startDate = ?, updated_at = ?, identity = ? WHERE idproposal = ?";
-        int resultado;
+        String sqlGetDate = "SELECT creationdate FROM proposals WHERE idproposal = ?";
 
-        try {
+        int resultado;
+        Date creationDate = null;
+
+
+        try(PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sqlGetDate)) {
+            stmt.setString(1, idProposal);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                creationDate = rs.getDate("creationdate");
+            }
+
             // Almacenamos el nº total de filas que hay en la tabla
             int totalRows = proposalTable.getRowCount();
 
@@ -252,26 +263,26 @@ public class ProposalDB {
             } else if (title.isEmpty() || description.isEmpty() || startDate.isEmpty() || indexEntity == -1) {
                 throw new CustomException(1111);
 
-                // Si la fecha introducida es anterior a HOY
-            } else if (InputOutput.wrongDate(startDate)) {
-                throw new CustomException(1117);
+                // Si la fecha introducida es anterior a la fecha de creación original y a hoy
+            } else if (InputOutput.wrongDate(startDate) && InputOutput.wrongEditedDate(startDate, creationDate)) {
+                throw new CustomException(1119);
 
             } else {
                 // Mensaje de confirmación al modificar
                 resultado = InputOutput.editConfirmation();
 
                 if (InputOutput.ifOk(resultado)) {
-                    try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+                    try (PreparedStatement pStmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 
-                        stmt.setString(1, title);
-                        stmt.setString(2, description);
-                        stmt.setString(3, startDate);
-                        stmt.setString(4, InputOutput.todayDate());
-                        stmt.setInt(5, indexEntity);
+                        pStmt.setString(1, title);
+                        pStmt.setString(2, description);
+                        pStmt.setString(3, startDate);
+                        pStmt.setString(4, InputOutput.todayDate());
+                        pStmt.setInt(5, indexEntity);
 
-                        stmt.setInt(6, InputOutput.stringToInt(idProposal));
+                        pStmt.setInt(6, InputOutput.stringToInt(idProposal));
 
-                        stmt.executeUpdate();
+                        pStmt.executeUpdate();
                         //stmt.close(); // No hace falta con el try-with-resources
 
                         // Añadimos la entrada al log
@@ -283,12 +294,10 @@ public class ProposalDB {
                         // Actualizamos datos de la tabla
                         showData(proposalTable);
 
-                    } catch (SQLException e) {
-                        e.printStackTrace();
                     }
                 }
             }
-        } catch (CustomException ce) {
+        } catch (SQLException | CustomException ce) {
             InputOutput.printAlert(ce.getMessage());
 
             // Capturamos error para el registro
