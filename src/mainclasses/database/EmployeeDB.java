@@ -194,7 +194,7 @@ public class EmployeeDB {
                      "VALUES (?,?,?,?,?,?,?)";
 
         int batchSize = 20; // Paquete de filas que se importarán a la vez (mejor rendimiento)
-        
+
         // Try-with-resources: No hace falta hacer close() del statement
         try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
             try(BufferedReader br = new BufferedReader(new FileReader(file))) {
